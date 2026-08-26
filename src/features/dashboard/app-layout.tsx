@@ -1,4 +1,4 @@
-import { useState, type PropsWithChildren } from 'react';
+import { useState, type ComponentType, type PropsWithChildren } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 import { useAuth } from '../auth/use-auth';
@@ -10,17 +10,22 @@ import {
   WalletIcon,
 } from './dashboard-icons';
 
-const navigation = [
+const navigation: readonly {
+  label: string;
+  to: string;
+  icon: ComponentType;
+  available: boolean;
+}[] = [
   { label: 'Dashboard', to: '/dashboard', icon: GridIcon, available: true },
   {
     label: 'Transaksi',
     to: '/transactions',
     icon: ArrowsIcon,
-    available: false,
+    available: true,
   },
   { label: 'Account', to: '/accounts', icon: WalletIcon, available: true },
   { label: 'Kategori', to: '/categories', icon: GridIcon, available: true },
-] as const;
+];
 
 export function AppLayout({ children }: PropsWithChildren) {
   const { user, logout } = useAuth();
