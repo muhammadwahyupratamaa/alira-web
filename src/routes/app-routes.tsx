@@ -31,9 +31,14 @@ const CategoriesPage = lazy(() =>
     default: module.CategoriesPage,
   })),
 );
-const FeaturePlaceholderPage = lazy(() =>
-  import('../features/dashboard/feature-placeholder-page').then((module) => ({
-    default: module.FeaturePlaceholderPage,
+const TransactionsPage = lazy(() =>
+  import('../features/transactions/transactions-page').then((module) => ({
+    default: module.TransactionsPage,
+  })),
+);
+const TransactionFormPage = lazy(() =>
+  import('../features/transactions/transaction-form-page').then((module) => ({
+    default: module.TransactionFormPage,
   })),
 );
 
@@ -55,10 +60,26 @@ export function AppRoutes() {
           }
         />
         <Route
+          path="/transactions"
+          element={
+            <Suspense fallback={<RouteLoading />}>
+              <TransactionsPage />
+            </Suspense>
+          }
+        />
+        <Route
           path="/transactions/new"
           element={
             <Suspense fallback={<RouteLoading />}>
-              <FeaturePlaceholderPage title="Tambah transaksi" />
+              <TransactionFormPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/transactions/:id"
+          element={
+            <Suspense fallback={<RouteLoading />}>
+              <TransactionFormPage />
             </Suspense>
           }
         />
