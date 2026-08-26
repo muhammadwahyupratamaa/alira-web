@@ -18,7 +18,7 @@ const navigation = [
     icon: ArrowsIcon,
     available: false,
   },
-  { label: 'Account', to: '/accounts', icon: WalletIcon, available: false },
+  { label: 'Account', to: '/accounts', icon: WalletIcon, available: true },
 ] as const;
 
 export function AppLayout({ children }: PropsWithChildren) {
