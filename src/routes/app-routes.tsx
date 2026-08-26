@@ -11,6 +11,21 @@ const DashboardPage = lazy(() =>
     default: module.DashboardPage,
   })),
 );
+const AccountsPage = lazy(() =>
+  import('../features/accounts/accounts-page').then((module) => ({
+    default: module.AccountsPage,
+  })),
+);
+const CreateAccountPage = lazy(() =>
+  import('../features/accounts/create-account-page').then((module) => ({
+    default: module.CreateAccountPage,
+  })),
+);
+const AccountDetailPage = lazy(() =>
+  import('../features/accounts/account-detail-page').then((module) => ({
+    default: module.AccountDetailPage,
+  })),
+);
 const FeaturePlaceholderPage = lazy(() =>
   import('../features/dashboard/feature-placeholder-page').then((module) => ({
     default: module.FeaturePlaceholderPage,
@@ -43,10 +58,26 @@ export function AppRoutes() {
           }
         />
         <Route
+          path="/accounts"
+          element={
+            <Suspense fallback={<RouteLoading />}>
+              <AccountsPage />
+            </Suspense>
+          }
+        />
+        <Route
           path="/accounts/new"
           element={
             <Suspense fallback={<RouteLoading />}>
-              <FeaturePlaceholderPage title="Tambah account" />
+              <CreateAccountPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/accounts/:id"
+          element={
+            <Suspense fallback={<RouteLoading />}>
+              <AccountDetailPage />
             </Suspense>
           }
         />
