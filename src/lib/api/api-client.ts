@@ -17,7 +17,19 @@ export class ApiError extends Error {
 
 export interface ApiRequestOptions extends Omit<RequestInit, 'body'> {
   accessToken?: string;
-  body?: BodyInit | Record<string, unknown> | null;
+  body?: BodyInit | object | null;
+}
+
+let accessToken: string | null = null;
+let refreshPromise: Promise<string> | null = null;
+let sessionExpiredHandler: (() => void) | null = null;
+
+export function setApiAccessToken(token: string | null): void {
+  accessToken = token;
+}
+
+export function setSessionExpiredHandler(handler: (() => void) | null): void {
+  sessionExpiredHandler = handler;
 }
 
 function isBodyInit(
@@ -100,4 +112,49 @@ export async function apiRequest<T>(
   }
 
   return responseBody as T;
+}
+
+interface RefreshResponse {
+  accessToken: string;
+}
+
+async function refreshAccessToken(): Promise<string> {
+  refreshPromise ??= apiRequest<RefreshResponse>('auth/refresh', {
+    method: 'POST',
+  })
+    .then((response) => {
+      setApiAccessToken(response.accessToken);
+      return response.accessToken;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
+export async function authenticatedApiRequest<T>(
+  path: string,
+  options: Omit<ApiRequestOptions, 'accessToken'> = {},
+): Promise<T> {
+  try {
+    return await apiRequest<T>(path, {
+      ...options,
+      ...(accessToken ? { accessToken } : {}),
+    });
+  } catch (error) {
+    if (!(error instanceof ApiError) || error.status !== 401) throw error;
+  }
+
+  try {
+    const refreshedToken = await refreshAccessToken();
+    return await apiRequest<T>(path, {
+      ...options,
+      accessToken: refreshedToken,
+    });
+  } catch (error) {
+    setApiAccessToken(null);
+    sessionExpiredHandler?.();
+    throw error;
+  }
 }
