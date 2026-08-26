@@ -6,9 +6,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AuthProvider } from './auth-provider';
 import { GuestRoute, ProtectedRoute } from './auth-route';
-import { DashboardPage } from './dashboard-page';
 import { LoginPage } from './login-page';
 import { RegisterPage } from './register-page';
+import { useAuth } from './use-auth';
 
 const testUser = {
   id: '5b9a82bd-e08f-4c93-a947-6f29bb680cef',
@@ -36,7 +36,7 @@ function renderAuthApp(route = '/login', strict = false) {
             <Route path="/register" element={<RegisterPage />} />
           </Route>
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/dashboard" element={<AuthTestDashboard />} />
           </Route>
         </Routes>
       </AuthProvider>
@@ -44,6 +44,18 @@ function renderAuthApp(route = '/login', strict = false) {
   );
 
   return render(strict ? <StrictMode>{app}</StrictMode> : app);
+}
+
+function AuthTestDashboard() {
+  const { user, logout } = useAuth();
+  return (
+    <main>
+      <h1>Dashboard for {user?.email}</h1>
+      <button type="button" onClick={() => void logout()}>
+        Keluar
+      </button>
+    </main>
+  );
 }
 
 describe('authentication flows', () => {
