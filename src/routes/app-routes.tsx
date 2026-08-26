@@ -26,6 +26,11 @@ const AccountDetailPage = lazy(() =>
     default: module.AccountDetailPage,
   })),
 );
+const CategoriesPage = lazy(() =>
+  import('../features/categories/categories-page').then((module) => ({
+    default: module.CategoriesPage,
+  })),
+);
 const FeaturePlaceholderPage = lazy(() =>
   import('../features/dashboard/feature-placeholder-page').then((module) => ({
     default: module.FeaturePlaceholderPage,
@@ -78,6 +83,14 @@ export function AppRoutes() {
           element={
             <Suspense fallback={<RouteLoading />}>
               <AccountDetailPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/categories"
+          element={
+            <Suspense fallback={<RouteLoading />}>
+              <CategoriesPage />
             </Suspense>
           }
         />

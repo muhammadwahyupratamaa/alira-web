@@ -19,6 +19,7 @@ const navigation = [
     available: false,
   },
   { label: 'Account', to: '/accounts', icon: WalletIcon, available: true },
+  { label: 'Kategori', to: '/categories', icon: GridIcon, available: true },
 ] as const;
 
 export function AppLayout({ children }: PropsWithChildren) {
