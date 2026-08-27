@@ -43,6 +43,11 @@ export function RecentTransactions({
                     {transaction.account.name} ·{' '}
                     {formatFinancialDate(transaction.transactionDate, timezone)}
                   </span>
+                  {typeof transaction.note === 'string' && transaction.note ? (
+                    <small className="transaction-note">
+                      {transaction.note}
+                    </small>
+                  ) : null}
                 </div>
                 <div className="transaction-amount">
                   <strong>

@@ -88,6 +88,7 @@ export function DashboardPage() {
             summary={dashboard.summary.data}
             breakdown={dashboard.breakdown.data}
             recent={dashboard.recent.data}
+            isRefreshing={dashboard.isRefreshing}
           />
         ) : null}
       </main>
@@ -101,12 +102,14 @@ function DashboardContent({
   summary,
   breakdown,
   recent,
+  isRefreshing,
 }: {
   period: DashboardPeriod;
   timezone: string;
   summary: DashboardSummary;
   breakdown: CategoryBreakdown;
   recent: RecentTransaction[];
+  isRefreshing: boolean;
 }) {
   const isEmpty =
     recent.length === 0 &&
@@ -142,9 +145,10 @@ function DashboardContent({
   }
 
   return (
-    <div className="dashboard-data">
-      <div className="dashboard-period-label">
-        Menampilkan {formatPeriod(period, timezone)}
+    <div className="dashboard-data" aria-busy={isRefreshing}>
+      <div className="dashboard-period-row">
+        <span>Menampilkan {formatPeriod(period, timezone)}</span>
+        {isRefreshing ? <span role="status">Memperbarui data…</span> : null}
       </div>
       <SummaryCards summary={summary} />
       <div className="quick-actions" aria-label="Aksi cepat">

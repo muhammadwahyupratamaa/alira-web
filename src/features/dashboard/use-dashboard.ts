@@ -37,6 +37,11 @@ export function useDashboard(period: DashboardPeriod) {
     isError: summary.isError || breakdown.isError || recent.isError,
     isRetrying:
       summary.isRefetching || breakdown.isRefetching || recent.isRefetching,
+    isRefreshing:
+      !summary.isPending &&
+      !breakdown.isPending &&
+      !recent.isPending &&
+      (summary.isFetching || breakdown.isFetching || recent.isFetching),
     retry,
   };
 }

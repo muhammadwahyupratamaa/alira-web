@@ -1,35 +1,47 @@
 import { formatIdr } from './dashboard-formatters';
 import type { DashboardSummary } from './dashboard.types';
 
-const cardDefinitions = [
-  { key: 'totalBalance', label: 'Total saldo', tone: 'balance' },
-  { key: 'monthlyIncome', label: 'Pemasukan', tone: 'income' },
-  { key: 'monthlyExpense', label: 'Pengeluaran', tone: 'expense' },
+const flowDefinitions = [
+  { key: 'monthlyIncome', label: 'Pemasukan', tone: 'income', sign: '+' },
+  { key: 'monthlyExpense', label: 'Pengeluaran', tone: 'expense', sign: '−' },
+  { key: 'netSaving', label: 'Net saving', tone: 'net', sign: '=' },
 ] as const;
 
 export function SummaryCards({ summary }: { summary: DashboardSummary }) {
   return (
-    <section className="summary-grid" aria-label="Ringkasan keuangan">
-      {cardDefinitions.map(({ key, label, tone }) => (
-        <article className={`summary-card summary-${tone}`} key={key}>
-          <div className="summary-card-heading">
-            <span className="summary-mark" aria-hidden="true" />
-            <h2>{label}</h2>
-          </div>
-          <p className="summary-value">{formatIdr(summary[key])}</p>
-          {key === 'totalBalance' ? (
-            <p className="summary-caption">Saldo seluruh account aktif</p>
-          ) : (
-            <Comparison
-              value={
-                key === 'monthlyIncome'
-                  ? summary.incomeComparison.percentageChange
-                  : summary.expenseComparison.percentageChange
-              }
-            />
-          )}
-        </article>
-      ))}
+    <section className="flow-ledger" aria-labelledby="ledger-title">
+      <header className="ledger-balance">
+        <div>
+          <p className="section-kicker">Posisi saat ini</p>
+          <h2 id="ledger-title">Total saldo</h2>
+        </div>
+        <p className="ledger-primary-value">
+          {formatIdr(summary.totalBalance)}
+        </p>
+        <p className="ledger-caption">Saldo seluruh account aktif</p>
+      </header>
+      <div className="ledger-flow" aria-label="Aliran keuangan periode ini">
+        {flowDefinitions.map(({ key, label, tone, sign }) => (
+          <article className={`ledger-metric ledger-${tone}`} key={key}>
+            <span className="ledger-sign" aria-hidden="true">
+              {sign}
+            </span>
+            <div>
+              <h3>{label}</h3>
+              <p className="ledger-value">{formatIdr(summary[key])}</p>
+              <Comparison
+                value={
+                  key === 'monthlyIncome'
+                    ? summary.incomeComparison.percentageChange
+                    : key === 'monthlyExpense'
+                      ? summary.expenseComparison.percentageChange
+                      : summary.netSavingComparison.percentageChange
+                }
+              />
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   );
 }

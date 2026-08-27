@@ -67,7 +67,7 @@ const recent = [
     type: 'INCOME',
     amount: '2500000.00',
     transactionDate: '2026-08-25',
-    note: null,
+    note: 'Gaji Agustus',
     createdAt: '2026-08-25T08:00:00.000Z',
     account: {
       id: '8cb75313-e55a-4b76-a451-66088662963b',
@@ -159,7 +159,8 @@ describe('DashboardPage', () => {
   it('renders API summary, category breakdown, and recent transactions', async () => {
     renderDashboard();
 
-    expect(await screen.findByText('Rp1.500.000')).toBeVisible();
+    expect(await screen.findAllByText('Rp1.500.000')).toHaveLength(2);
+    expect(screen.getByRole('heading', { name: /net saving/i })).toBeVisible();
     expect(screen.getByText('Rp2.500.000')).toBeVisible();
     expect(screen.getAllByText('Rp1.000.000')).toHaveLength(2);
     expect(screen.getByTestId('expense-doughnut')).toBeInTheDocument();
@@ -169,12 +170,38 @@ describe('DashboardPage', () => {
     expect(screen.getByText('+Rp2.500.000')).toBeVisible();
     expect(screen.getByText('−Rp75.000,5')).toBeVisible();
     expect(screen.getByText(/25 Agu 2026/i)).toBeVisible();
+    expect(screen.getByText('Gaji Agustus')).toBeVisible();
+    expect(screen.getByText('+', { selector: '.ledger-sign' })).toBeVisible();
+    expect(screen.getByText('−', { selector: '.ledger-sign' })).toBeVisible();
+    expect(screen.getByText('=', { selector: '.ledger-sign' })).toBeVisible();
+  });
+
+  it('renders high-precision decimal strings without numeric conversion', async () => {
+    const preciseAmount = '900719925474099312345678.12';
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const url = getRequestUrl(input);
+        if (url.includes('/dashboard/summary')) {
+          return Promise.resolve(
+            jsonResponse({ ...summary, totalBalance: preciseAmount }),
+          );
+        }
+        return successfulFetch(input);
+      }),
+    );
+
+    renderDashboard();
+
+    expect(
+      await screen.findByText('Rp900.719.925.474.099.312.345.678,12'),
+    ).toBeVisible();
   });
 
   it('updates period queries without adding unsupported params to recent', async () => {
     const fetchMock = vi.mocked(fetch);
     renderDashboard();
-    await screen.findByText('Rp1.500.000');
+    await screen.findAllByText('Rp1.500.000');
     fetchMock.mockClear();
 
     fireEvent.change(screen.getByLabelText(/pilih periode dashboard/i), {
@@ -290,7 +317,7 @@ describe('DashboardPage', () => {
 
     renderDashboard();
 
-    expect(await screen.findByText('Rp1.500.000')).toBeVisible();
+    expect(await screen.findAllByText('Rp1.500.000')).toHaveLength(2);
     expect(
       fetchMock.mock.calls.filter(([input]) =>
         getRequestUrl(input).includes('/auth/refresh'),
@@ -343,7 +370,7 @@ describe('DashboardPage', () => {
     resolveRefresh?.(
       jsonResponse({ accessToken: 'access-token', user: testUser }),
     );
-    expect(await screen.findByText('Rp1.500.000')).toBeVisible();
+    expect(await screen.findAllByText('Rp1.500.000')).toHaveLength(2);
   });
 });
 

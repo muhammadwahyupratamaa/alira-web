@@ -48,6 +48,16 @@ export function UserIcon(props: IconProps) {
   );
 }
 
+export function MoreIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <circle cx="5" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="12" r="1" fill="currentColor" stroke="none" />
+    </IconBase>
+  );
+}
+
 export function ArrowsIcon(props: IconProps) {
   return (
     <IconBase {...props}>
