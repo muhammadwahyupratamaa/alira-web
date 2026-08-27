@@ -2524,6 +2524,7 @@ body {
 }
 
 .field-group input,
+.field-group select,
 .period-control input,
 .transaction-filters input,
 .transaction-filters select,
@@ -2535,6 +2536,27 @@ body {
   box-shadow: 0 1px 0 rgb(255 255 255 / 72%) inset;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+}
+
+.field-group select,
+.transaction-filters select {
+  appearance: none;
+  padding-right: 2.8rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.15rem) 52%,
+    calc(100% - 0.85rem) 52%;
+  background-size:
+    0.32rem 0.32rem,
+    0.32rem 0.32rem;
+  background-repeat: no-repeat;
+}
+
+.field-group select:focus,
+.transaction-filters select:focus {
+  border-color: rgb(8 127 121 / 52%);
 }
 
 .primary-button,
@@ -2560,6 +2582,36 @@ body {
   background: rgb(23 35 43 / 24%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+}
+
+.account-card-inactive {
+  border: 1px dashed rgb(83 99 109 / 42%);
+  background: rgb(223 231 235 / 62%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 50%) inset;
+  opacity: 0.82;
+}
+
+.account-card-inactive .account-type-mark,
+.status-inactive {
+  color: #53636d;
+  background: rgb(218 227 231 / 78%);
+}
+
+.confirm-dialog,
+.account-form-card {
+  border: 1px solid rgb(255 255 255 / 66%);
+  background: rgb(248 252 253 / 82%);
+  box-shadow: var(--shadow-surface);
+  backdrop-filter: saturate(160%) blur(24px);
+  -webkit-backdrop-filter: saturate(160%) blur(24px);
+}
+
+.danger-button {
+  border-color: rgb(255 255 255 / 20%);
+  background: linear-gradient(135deg, #c95d51, #9d3f37);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 20%) inset,
+    0 10px 22px rgb(157 63 55 / 20%);
 }
 
 @media (min-width: 64rem) {
@@ -2590,6 +2642,13 @@ body {
   .mobile-more-sheet,
   .mobile-header,
   .mobile-nav {
+    background: #f8fbfc;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .confirm-dialog,
+  .account-form-card {
     background: #f8fbfc;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
