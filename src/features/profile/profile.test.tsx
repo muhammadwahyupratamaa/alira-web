@@ -75,7 +75,9 @@ describe('ProfilePage', () => {
     );
     expect(screen.getAllByText('profile@example.com')).toHaveLength(2);
     expect(screen.getByText('Asia/Jakarta')).toBeVisible();
-    expect(screen.getByRole('option', { name: /IDR/ })).toBeVisible();
+    expect(
+      screen.getByRole('combobox', { name: /mata uang/i }),
+    ).toHaveTextContent(/IDR/);
     expect(screen.queryByLabelText(/email/i)).not.toBeInTheDocument();
     expect(
       screen.queryByLabelText(/avatar|locale|tema/i),

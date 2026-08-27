@@ -2,10 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from '@/components/ui/native-select';
+import { AppSelect } from '@/components/ui/app-select';
 
 import { AppLayout } from '../dashboard/app-layout';
 import {
@@ -34,6 +31,15 @@ const sorts = [
   'amount:desc',
   'amount:asc',
 ] as const;
+
+const sortLabels: Record<(typeof sorts)[number], string> = {
+  'transactionDate:desc': 'Tanggal terbaru',
+  'transactionDate:asc': 'Tanggal terlama',
+  'createdAt:desc': 'Terakhir ditambahkan',
+  'createdAt:asc': 'Pertama ditambahkan',
+  'amount:desc': 'Nominal terbesar',
+  'amount:asc': 'Nominal terkecil',
+};
 function filtersFrom(params: URLSearchParams): TransactionFilters {
   const sortValue = params.get('sort');
   const requestedPage = Number(params.get('page') ?? '1');
@@ -180,69 +186,66 @@ export function TransactionsPage() {
           </label>
           <label>
             Tipe
-            <NativeSelect
-              className="w-full"
+            <AppSelect
+              label="Tipe"
               value={filters.type ?? ''}
-              onChange={(event) => {
-                setFilter('type', event.target.value);
+              onValueChange={(value) => {
+                setFilter('type', value);
               }}
-            >
-              <NativeSelectOption value="">Semua tipe</NativeSelectOption>
-              <NativeSelectOption value="INCOME">Pemasukan</NativeSelectOption>
-              <NativeSelectOption value="EXPENSE">
-                Pengeluaran
-              </NativeSelectOption>
-            </NativeSelect>
+              options={[
+                { value: '', label: 'Semua tipe' },
+                { value: 'INCOME', label: 'Pemasukan' },
+                { value: 'EXPENSE', label: 'Pengeluaran' },
+              ]}
+            />
           </label>
           <label>
             Account
-            <NativeSelect
-              className="w-full"
+            <AppSelect
+              label="Account"
               value={filters.accountId ?? ''}
-              onChange={(event) => {
-                setFilter('accountId', event.target.value);
+              onValueChange={(value) => {
+                setFilter('accountId', value);
               }}
-            >
-              <NativeSelectOption value="">Semua account</NativeSelectOption>
-              {accounts.data?.map((item) => (
-                <NativeSelectOption key={item.id} value={item.id}>
-                  {item.name}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+              options={[
+                { value: '', label: 'Semua account' },
+                ...(accounts.data ?? []).map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                })),
+              ]}
+            />
           </label>
           <label>
             Kategori
-            <NativeSelect
-              className="w-full"
+            <AppSelect
+              label="Kategori"
               value={filters.categoryId ?? ''}
-              onChange={(event) => {
-                setFilter('categoryId', event.target.value);
+              onValueChange={(value) => {
+                setFilter('categoryId', value);
               }}
-            >
-              <NativeSelectOption value="">Semua kategori</NativeSelectOption>
-              {categories.data?.map((item) => (
-                <NativeSelectOption key={item.id} value={item.id}>
-                  {item.name}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+              options={[
+                { value: '', label: 'Semua kategori' },
+                ...(categories.data ?? []).map((item) => ({
+                  value: item.id,
+                  label: item.name,
+                })),
+              ]}
+            />
           </label>
           <label>
             Urutkan
-            <NativeSelect
-              className="w-full"
+            <AppSelect
+              label="Urutkan"
               value={filters.sort}
-              onChange={(event) => {
-                setFilter('sort', event.target.value);
+              onValueChange={(value) => {
+                setFilter('sort', value);
               }}
-            >
-              {sorts.map((sort) => (
-                <NativeSelectOption key={sort} value={sort}>
-                  {sort.replace(':', ' ')}
-                </NativeSelectOption>
-              ))}
-            </NativeSelect>
+              options={sorts.map((sort) => ({
+                value: sort,
+                label: sortLabels[sort],
+              }))}
+            />
           </label>
           <label className="transaction-search">
             Cari catatan

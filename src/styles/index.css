@@ -4,14 +4,7 @@
 
 :root {
   color-scheme: light;
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #171717;
   background: #f6f7f9;
   font-synthesis: none;
@@ -2577,6 +2570,24 @@ body {
   border-color: rgb(8 127 121 / 52%);
 }
 
+.app-select-trigger {
+  min-height: 2.8rem;
+  border-color: rgb(255 255 255 / 68%);
+  color: var(--color-text);
+  background: rgb(255 255 255 / 56%);
+  box-shadow: 0 1px 0 rgb(255 255 255 / 72%) inset;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.app-select-content {
+  border: 1px solid rgb(255 255 255 / 70%);
+  background: rgb(248 252 253 / 86%);
+  box-shadow: 0 18px 45px rgb(44 68 84 / 18%);
+  backdrop-filter: saturate(160%) blur(22px);
+  -webkit-backdrop-filter: saturate(160%) blur(22px);
+}
+
 .primary-button,
 .primary-link,
 .mobile-add,
@@ -2603,10 +2614,22 @@ body {
 }
 
 .account-card-inactive {
-  border: 1px dashed rgb(83 99 109 / 42%);
-  background: rgb(223 231 235 / 62%);
+  border: 1px dashed rgb(83 99 109 / 38%);
+  background: rgb(229 235 238 / 68%);
   box-shadow: 0 1px 0 rgb(255 255 255 / 50%) inset;
-  opacity: 0.82;
+}
+
+.account-card-inactive h2,
+.account-card-inactive dd {
+  color: #53636d;
+}
+
+.inactive-account-caption {
+  margin-left: auto;
+  color: #657178;
+  font-size: 0.68rem;
+  line-height: 1.35;
+  text-align: right;
 }
 
 .account-card-inactive .account-type-mark,
@@ -2675,10 +2698,8 @@ body {
 
 @theme inline {
   --font-heading: var(--font-sans);
-  --font-sans: Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-mono:
-    ui-monospace, 'SFMono-Regular', 'SF Mono', Menlo, Monaco, Consolas,
-    monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

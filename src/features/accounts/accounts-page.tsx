@@ -179,7 +179,11 @@ function AccountCard({
           >
             Nonaktifkan
           </button>
-        ) : null}
+        ) : (
+          <span className="inactive-account-caption">
+            Hanya untuk melihat riwayat
+          </span>
+        )}
       </footer>
     </article>
   );

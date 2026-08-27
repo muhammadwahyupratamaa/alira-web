@@ -116,10 +116,11 @@ describe('transaction management', () => {
       await screen.findAllByText(/Rp9.007.199.254.740.993,25/),
     ).toHaveLength(2);
     expect(screen.getAllByText(/26 Agu 2026/)).toHaveLength(2);
-    await userEvent.selectOptions(screen.getByLabelText('Tipe'), 'EXPENSE');
-    await userEvent.selectOptions(
-      screen.getByLabelText('Urutkan'),
-      'amount:asc',
+    await userEvent.click(screen.getByRole('combobox', { name: 'Tipe' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Pengeluaran' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Urutkan' }));
+    await userEvent.click(
+      screen.getByRole('option', { name: 'Nominal terkecil' }),
     );
     await waitFor(() => {
       expect(
@@ -209,14 +210,18 @@ describe('transaction management', () => {
     );
     vi.stubGlobal('fetch', fetchMock);
     renderRoutes('/transactions/new');
+    await userEvent.click(screen.getByRole('combobox', { name: 'Account' }));
     await screen.findByRole('option', { name: 'Bank' });
     expect(
       screen.queryByRole('option', { name: 'Lama' }),
     ).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('option', { name: 'Bank' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Kategori' }));
     expect(screen.getByRole('option', { name: 'Makanan' })).toBeVisible();
     expect(
       screen.queryByRole('option', { name: 'Gaji' }),
     ).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('option', { name: 'Makanan' }));
     await userEvent.click(
       screen.getByRole('button', { name: /simpan transaksi/i }),
     );
@@ -227,11 +232,10 @@ describe('transaction management', () => {
       screen.getByLabelText('Nominal'),
       '9007199254740993.25',
     );
-    await userEvent.selectOptions(screen.getByLabelText('Account'), accountId);
-    await userEvent.selectOptions(
-      screen.getByLabelText('Kategori'),
-      categoryId,
-    );
+    await userEvent.click(screen.getByRole('combobox', { name: 'Account' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Bank' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Kategori' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Makanan' }));
     await userEvent.click(
       screen.getByRole('button', { name: /simpan transaksi/i }),
     );

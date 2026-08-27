@@ -1,10 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from '@/components/ui/native-select';
+import { AppSelect } from '@/components/ui/app-select';
 
 import { preferencesSchema, type PreferencesValues } from './profile.schemas';
 import type { User } from '../auth/auth.types';
@@ -23,6 +20,7 @@ export function PreferencesForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isDirty },
   } = useForm<PreferencesValues>({
     resolver: zodResolver(preferencesSchema),
@@ -41,15 +39,19 @@ export function PreferencesForm({
       ) : null}
       <div className="field-group">
         <label htmlFor="currency">Mata uang</label>
-        <NativeSelect
-          className="w-full"
-          id="currency"
-          {...register('currency')}
-        >
-          <NativeSelectOption value="IDR">
-            IDR — Rupiah Indonesia
-          </NativeSelectOption>
-        </NativeSelect>
+        <Controller
+          control={control}
+          name="currency"
+          render={({ field }) => (
+            <AppSelect
+              id="currency"
+              label="Mata uang"
+              onValueChange={field.onChange}
+              options={[{ value: 'IDR', label: 'IDR — Rupiah Indonesia' }]}
+              value={field.value}
+            />
+          )}
+        />
         <p className="field-hint">MVP Alira saat ini hanya mendukung IDR.</p>
       </div>
       <div className="field-group">

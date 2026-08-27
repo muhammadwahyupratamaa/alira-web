@@ -131,6 +131,7 @@ describe('account management', () => {
     expect(screen.getByText('Cash')).toBeVisible();
     expect(screen.getByText('E-Wallet')).toBeVisible();
     expect(screen.getByText('Nonaktif')).toBeVisible();
+    expect(screen.getByText(/hanya untuk melihat riwayat/i)).toBeVisible();
   });
 
   it('handles loading, empty, error, and retry states', async () => {

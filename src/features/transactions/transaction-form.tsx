@@ -1,12 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from '@/components/ui/native-select';
+import { AppSelect } from '@/components/ui/app-select';
 
 import { getAccounts } from '../accounts/account.api';
 import { getCategories } from '../categories/category.api';
@@ -126,38 +123,52 @@ export function TransactionForm({
       <div className="transaction-form-grid">
         <div className="field-group">
           <label htmlFor="transaction-account">Account</label>
-          <NativeSelect
-            className="w-full"
-            id="transaction-account"
-            aria-invalid={Boolean(errors.accountId)}
-            {...register('accountId')}
-          >
-            <NativeSelectOption value="">Pilih account</NativeSelectOption>
-            {activeAccounts.map((item) => (
-              <NativeSelectOption value={item.id} key={item.id}>
-                {item.name}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
+          <Controller
+            control={control}
+            name="accountId"
+            render={({ field }) => (
+              <AppSelect
+                id="transaction-account"
+                invalid={Boolean(errors.accountId)}
+                label="Account"
+                onValueChange={field.onChange}
+                options={[
+                  { value: '', label: 'Pilih account' },
+                  ...activeAccounts.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  })),
+                ]}
+                value={field.value}
+              />
+            )}
+          />
           {errors.accountId ? (
             <p className="field-error">{errors.accountId.message}</p>
           ) : null}
         </div>
         <div className="field-group">
           <label htmlFor="transaction-category">Kategori</label>
-          <NativeSelect
-            className="w-full"
-            id="transaction-category"
-            aria-invalid={Boolean(errors.categoryId)}
-            {...register('categoryId')}
-          >
-            <NativeSelectOption value="">Pilih kategori</NativeSelectOption>
-            {matchingCategories.map((item) => (
-              <NativeSelectOption value={item.id} key={item.id}>
-                {item.name}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
+          <Controller
+            control={control}
+            name="categoryId"
+            render={({ field }) => (
+              <AppSelect
+                id="transaction-category"
+                invalid={Boolean(errors.categoryId)}
+                label="Kategori"
+                onValueChange={field.onChange}
+                options={[
+                  { value: '', label: 'Pilih kategori' },
+                  ...matchingCategories.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                  })),
+                ]}
+                value={field.value}
+              />
+            )}
+          />
           {errors.categoryId ? (
             <p className="field-error">{errors.categoryId.message}</p>
           ) : null}
