@@ -75,6 +75,15 @@ export function PlusIcon(props: IconProps) {
   );
 }
 
+export function CalendarIcon(props: IconProps) {
+  return (
+    <IconBase {...props}>
+      <rect x="3" y="5" width="18" height="16" rx="3" />
+      <path d="M8 3v4M16 3v4M3 10h18" />
+    </IconBase>
+  );
+}
+
 export function LogoutIcon(props: IconProps) {
   return (
     <IconBase {...props}>

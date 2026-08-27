@@ -30,7 +30,7 @@ export function ExpenseChart({ breakdown }: { breakdown: CategoryBreakdown }) {
       >
         <SectionHeading />
         <div className="compact-empty">
-          <p>Belum ada pengeluaran pada periode ini.</p>
+          <p>Belum ada data pengeluaran bulan ini.</p>
           <span>
             Transaksi pengeluaran akan dirangkum per kategori di sini.
           </span>

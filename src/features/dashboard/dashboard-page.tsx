@@ -11,7 +11,7 @@ import {
   isZeroDecimal,
   periodToInputValue,
 } from './dashboard-formatters';
-import { PlusIcon, WalletIcon } from './dashboard-icons';
+import { CalendarIcon, PlusIcon, WalletIcon } from './dashboard-icons';
 import type {
   CategoryBreakdown,
   DashboardPeriod,
@@ -41,7 +41,10 @@ export function DashboardPage() {
             <p>Pantau setiap aliran keuanganmu dalam satu pandangan.</p>
           </div>
           <label className="period-control">
-            <span>Periode</span>
+            <span className="period-control-label">
+              <CalendarIcon />
+              Periode
+            </span>
             <input
               type="month"
               min="2000-01"

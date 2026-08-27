@@ -22,7 +22,7 @@ export function RecentTransactions({
       </header>
       {transactions.length === 0 ? (
         <div className="compact-empty">
-          <p>Belum ada transaksi.</p>
+          <p>Belum ada transaksi pada periode ini.</p>
           <span>Mulai catat pemasukan atau pengeluaran pertamamu.</span>
         </div>
       ) : (
