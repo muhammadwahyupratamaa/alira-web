@@ -3,6 +3,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/components/ui/native-select';
+
 import { getAccounts } from '../accounts/account.api';
 import { getCategories } from '../categories/category.api';
 import {
@@ -121,36 +126,38 @@ export function TransactionForm({
       <div className="transaction-form-grid">
         <div className="field-group">
           <label htmlFor="transaction-account">Account</label>
-          <select
+          <NativeSelect
+            className="w-full"
             id="transaction-account"
             aria-invalid={Boolean(errors.accountId)}
             {...register('accountId')}
           >
-            <option value="">Pilih account</option>
+            <NativeSelectOption value="">Pilih account</NativeSelectOption>
             {activeAccounts.map((item) => (
-              <option value={item.id} key={item.id}>
+              <NativeSelectOption value={item.id} key={item.id}>
                 {item.name}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
+          </NativeSelect>
           {errors.accountId ? (
             <p className="field-error">{errors.accountId.message}</p>
           ) : null}
         </div>
         <div className="field-group">
           <label htmlFor="transaction-category">Kategori</label>
-          <select
+          <NativeSelect
+            className="w-full"
             id="transaction-category"
             aria-invalid={Boolean(errors.categoryId)}
             {...register('categoryId')}
           >
-            <option value="">Pilih kategori</option>
+            <NativeSelectOption value="">Pilih kategori</NativeSelectOption>
             {matchingCategories.map((item) => (
-              <option value={item.id} key={item.id}>
+              <NativeSelectOption value={item.id} key={item.id}>
                 {item.name}
-              </option>
+              </NativeSelectOption>
             ))}
-          </select>
+          </NativeSelect>
           {errors.categoryId ? (
             <p className="field-error">{errors.categoryId.message}</p>
           ) : null}

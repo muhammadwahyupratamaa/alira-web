@@ -2,6 +2,11 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '@/components/ui/native-select';
+
 import { AppLayout } from '../dashboard/app-layout';
 import {
   formatFinancialDate,
@@ -175,63 +180,69 @@ export function TransactionsPage() {
           </label>
           <label>
             Tipe
-            <select
+            <NativeSelect
+              className="w-full"
               value={filters.type ?? ''}
               onChange={(event) => {
                 setFilter('type', event.target.value);
               }}
             >
-              <option value="">Semua tipe</option>
-              <option value="INCOME">Pemasukan</option>
-              <option value="EXPENSE">Pengeluaran</option>
-            </select>
+              <NativeSelectOption value="">Semua tipe</NativeSelectOption>
+              <NativeSelectOption value="INCOME">Pemasukan</NativeSelectOption>
+              <NativeSelectOption value="EXPENSE">
+                Pengeluaran
+              </NativeSelectOption>
+            </NativeSelect>
           </label>
           <label>
             Account
-            <select
+            <NativeSelect
+              className="w-full"
               value={filters.accountId ?? ''}
               onChange={(event) => {
                 setFilter('accountId', event.target.value);
               }}
             >
-              <option value="">Semua account</option>
+              <NativeSelectOption value="">Semua account</NativeSelectOption>
               {accounts.data?.map((item) => (
-                <option key={item.id} value={item.id}>
+                <NativeSelectOption key={item.id} value={item.id}>
                   {item.name}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </label>
           <label>
             Kategori
-            <select
+            <NativeSelect
+              className="w-full"
               value={filters.categoryId ?? ''}
               onChange={(event) => {
                 setFilter('categoryId', event.target.value);
               }}
             >
-              <option value="">Semua kategori</option>
+              <NativeSelectOption value="">Semua kategori</NativeSelectOption>
               {categories.data?.map((item) => (
-                <option key={item.id} value={item.id}>
+                <NativeSelectOption key={item.id} value={item.id}>
                   {item.name}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </label>
           <label>
             Urutkan
-            <select
+            <NativeSelect
+              className="w-full"
               value={filters.sort}
               onChange={(event) => {
                 setFilter('sort', event.target.value);
               }}
             >
               {sorts.map((sort) => (
-                <option key={sort} value={sort}>
+                <NativeSelectOption key={sort} value={sort}>
                   {sort.replace(':', ' ')}
-                </option>
+                </NativeSelectOption>
               ))}
-            </select>
+            </NativeSelect>
           </label>
           <label className="transaction-search">
             Cari catatan
