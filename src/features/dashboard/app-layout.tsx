@@ -7,6 +7,7 @@ import {
   GridIcon,
   LogoutIcon,
   PlusIcon,
+  UserIcon,
   WalletIcon,
 } from './dashboard-icons';
 
@@ -25,6 +26,7 @@ const navigation: readonly {
   },
   { label: 'Account', to: '/accounts', icon: WalletIcon, available: true },
   { label: 'Kategori', to: '/categories', icon: GridIcon, available: true },
+  { label: 'Profile', to: '/profile', icon: UserIcon, available: true },
 ];
 
 export function AppLayout({ children }: PropsWithChildren) {
@@ -69,10 +71,16 @@ export function AppLayout({ children }: PropsWithChildren) {
           )}
         </nav>
         <div className="sidebar-user">
-          <span className="avatar" aria-hidden="true">
-            {user?.email.charAt(0).toUpperCase()}
-          </span>
-          <span className="user-email">{user?.email}</span>
+          <Link
+            className="sidebar-profile-link"
+            to="/profile"
+            aria-label="Buka Profile dan Settings"
+          >
+            <span className="avatar" aria-hidden="true">
+              {user?.email.charAt(0).toUpperCase()}
+            </span>
+            <span className="user-email">{user?.email}</span>
+          </Link>
           <button
             type="button"
             className="icon-button"

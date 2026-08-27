@@ -43,6 +43,7 @@ const auth: AuthContextValue = {
   isBootstrapping: false,
   login: vi.fn(),
   logout: vi.fn(),
+  syncUser: vi.fn(),
 };
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {

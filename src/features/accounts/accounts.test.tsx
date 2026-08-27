@@ -54,6 +54,7 @@ function TestProviders({
     isBootstrapping: false,
     login: vi.fn(),
     logout: vi.fn(),
+    syncUser: vi.fn(),
   };
   return (
     <QueryClientProvider client={client}>

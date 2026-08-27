@@ -129,6 +129,7 @@ function TestProviders({ children }: PropsWithChildren) {
     isBootstrapping: false,
     login: vi.fn(),
     logout: vi.fn(),
+    syncUser: vi.fn(),
   };
 
   return (

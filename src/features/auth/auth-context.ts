@@ -7,6 +7,7 @@ export interface AuthContextValue {
   isBootstrapping: boolean;
   login: (input: LoginInput) => Promise<void>;
   logout: () => Promise<void>;
+  syncUser: (user: User) => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
