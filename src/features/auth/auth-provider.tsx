@@ -66,10 +66,13 @@ export function AuthProvider({ children }: PropsWithChildren) {
       clearSession();
     }
   }, [clearSession]);
+  const syncUser = useCallback((nextUser: User) => {
+    setUser(nextUser);
+  }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, isBootstrapping, login, logout }),
-    [isBootstrapping, login, logout, user],
+    () => ({ user, isBootstrapping, login, logout, syncUser }),
+    [isBootstrapping, login, logout, syncUser, user],
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;

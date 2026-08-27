@@ -41,6 +41,11 @@ const TransactionFormPage = lazy(() =>
     default: module.TransactionFormPage,
   })),
 );
+const ProfilePage = lazy(() =>
+  import('../features/profile/profile-page').then((module) => ({
+    default: module.ProfilePage,
+  })),
+);
 
 export function AppRoutes() {
   return (
@@ -112,6 +117,22 @@ export function AppRoutes() {
           element={
             <Suspense fallback={<RouteLoading />}>
               <CategoriesPage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <Suspense fallback={<RouteLoading />}>
+              <ProfilePage />
+            </Suspense>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <Suspense fallback={<RouteLoading />}>
+              <ProfilePage />
             </Suspense>
           }
         />
