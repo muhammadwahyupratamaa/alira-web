@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { PropsWithChildren } from 'react';
 import { MemoryRouter } from 'react-router-dom';
@@ -156,6 +156,9 @@ describe('ProfilePage', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
     renderPage();
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Ubah password' }),
+    );
     await screen.findByLabelText('Password saat ini');
     await userEvent.type(
       screen.getByLabelText('Password saat ini'),
@@ -170,7 +173,9 @@ describe('ProfilePage', () => {
       'Different3',
     );
     await userEvent.click(
-      screen.getByRole('button', { name: /ubah password/i }),
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Ubah password',
+      }),
     );
     expect(await screen.findByText(/tidak sama/i)).toBeVisible();
     await userEvent.clear(screen.getByLabelText(/Konfirmasi password baru/));
@@ -179,9 +184,12 @@ describe('ProfilePage', () => {
       'NewPassword2',
     );
     await userEvent.click(
-      screen.getByRole('button', { name: /ubah password/i }),
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Ubah password',
+      }),
     );
     expect(await screen.findByText(/password berhasil/i)).toBeVisible();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     const call = fetchMock.mock.calls.find(([input]) =>
       requestUrl(input).includes('/password'),
     );
@@ -197,5 +205,74 @@ describe('ProfilePage', () => {
     expect(sessionSetItem).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: 'Logout' }));
     expect(logout).toHaveBeenCalledOnce();
+  });
+
+  it('keeps the password form in an accessible dialog and closes it with controls or Escape', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(json(profile)));
+    renderPage();
+    const trigger = await screen.findByRole('button', {
+      name: 'Ubah password',
+    });
+    await userEvent.click(trigger);
+    expect(screen.getByRole('dialog')).toHaveAttribute(
+      'aria-labelledby',
+      'change-password-title',
+    );
+    expect(screen.getByLabelText('Password saat ini')).toHaveFocus();
+    await userEvent.click(screen.getByRole('button', { name: 'Batal' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+
+    await userEvent.click(trigger);
+    await userEvent.click(
+      screen.getByRole('button', { name: /tutup ubah password/i }),
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+
+    await userEvent.click(trigger);
+    await userEvent.keyboard('{Escape}');
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('keeps password API errors in the dialog and prevents duplicate submission while pending', async () => {
+    let resolvePassword: ((response: Response) => void) | undefined;
+    const fetchMock = vi.fn<typeof fetch>((input) => {
+      if (requestUrl(input).includes('/password')) {
+        return new Promise<Response>((resolve) => {
+          resolvePassword = resolve;
+        });
+      }
+      return Promise.resolve(json(profile));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+    renderPage();
+    await userEvent.click(
+      await screen.findByRole('button', { name: 'Ubah password' }),
+    );
+    await userEvent.type(
+      screen.getByLabelText('Password saat ini'),
+      'oldPass1',
+    );
+    await userEvent.type(screen.getByLabelText('Password baru'), 'NewPass2');
+    await userEvent.type(
+      screen.getByLabelText(/Konfirmasi password baru/),
+      'NewPass2',
+    );
+    const dialog = screen.getByRole('dialog');
+    await userEvent.click(
+      within(dialog).getByRole('button', { name: 'Ubah password' }),
+    );
+    expect(
+      within(dialog).getByRole('button', { name: 'Mengubah…' }),
+    ).toBeDisabled();
+    expect(
+      within(dialog).getByRole('button', { name: 'Batal' }),
+    ).toBeDisabled();
+    resolvePassword?.(json({ message: 'Server error' }, 500));
+    expect(
+      await screen.findByText(/server sedang mengalami gangguan/i),
+    ).toBeVisible();
+    expect(screen.getByRole('dialog')).toBeVisible();
   });
 });

@@ -37,42 +37,44 @@ export function PreferencesForm({
           {error}
         </p>
       ) : null}
-      <div className="field-group">
-        <label htmlFor="currency">Mata uang</label>
-        <Controller
-          control={control}
-          name="currency"
-          render={({ field }) => (
-            <AppSelect
-              id="currency"
-              label="Mata uang"
-              onValueChange={field.onChange}
-              options={[{ value: 'IDR', label: 'IDR — Rupiah Indonesia' }]}
-              value={field.value}
-            />
-          )}
-        />
-        <p className="field-hint">MVP Alira saat ini hanya mendukung IDR.</p>
-      </div>
-      <div className="field-group">
-        <label htmlFor="timezone">Timezone</label>
-        <input
-          id="timezone"
-          autoComplete="off"
-          aria-invalid={Boolean(errors.timezone)}
-          aria-describedby={
-            errors.timezone ? 'timezone-error' : 'timezone-hint'
-          }
-          {...register('timezone')}
-        />
-        <p id="timezone-hint" className="field-hint">
-          Gunakan nama IANA, misalnya Asia/Jakarta.
-        </p>
-        {errors.timezone ? (
-          <p id="timezone-error" className="field-error">
-            {errors.timezone.message}
+      <div className="preferences-fields">
+        <div className="field-group">
+          <label htmlFor="currency">Mata uang</label>
+          <Controller
+            control={control}
+            name="currency"
+            render={({ field }) => (
+              <AppSelect
+                id="currency"
+                label="Mata uang"
+                onValueChange={field.onChange}
+                options={[{ value: 'IDR', label: 'IDR — Rupiah Indonesia' }]}
+                value={field.value}
+              />
+            )}
+          />
+          <p className="field-hint">MVP Alira saat ini hanya mendukung IDR.</p>
+        </div>
+        <div className="field-group">
+          <label htmlFor="timezone">Timezone</label>
+          <input
+            id="timezone"
+            autoComplete="off"
+            aria-invalid={Boolean(errors.timezone)}
+            aria-describedby={
+              errors.timezone ? 'timezone-error' : 'timezone-hint'
+            }
+            {...register('timezone')}
+          />
+          <p id="timezone-hint" className="field-hint">
+            Gunakan nama IANA, misalnya Asia/Jakarta.
           </p>
-        ) : null}
+          {errors.timezone ? (
+            <p id="timezone-error" className="field-error">
+              {errors.timezone.message}
+            </p>
+          ) : null}
+        </div>
       </div>
       <button
         className="primary-button settings-submit"

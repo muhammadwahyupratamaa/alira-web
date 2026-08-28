@@ -1,17 +1,22 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+
+import { PasswordField } from '../auth/password-field';
+
 import { passwordSchema, type PasswordValues } from './profile.schemas';
 
 export function PasswordForm({
   pending,
   error,
-  success,
   onSubmit,
+  onCancel,
+  onSuccess,
 }: {
   pending: boolean;
   error: string | null;
-  success: string | null;
   onSubmit: (values: PasswordValues) => Promise<boolean>;
+  onCancel: () => void;
+  onSuccess: () => void;
 }) {
   const {
     register,
@@ -27,7 +32,10 @@ export function PasswordForm({
     },
   });
   async function submit(values: PasswordValues) {
-    if (await onSubmit(values)) reset();
+    if (await onSubmit(values)) {
+      reset();
+      onSuccess();
+    }
   }
   return (
     <form
@@ -35,62 +43,45 @@ export function PasswordForm({
       onSubmit={(event) => void handleSubmit(submit)(event)}
       noValidate
     >
-      {success ? (
-        <p className="form-success" role="status">
-          {success}
-        </p>
-      ) : null}
       {error ? (
         <p className="form-alert" role="alert">
           {error}
         </p>
       ) : null}
-      <div className="field-group">
-        <label htmlFor="current-password">Password saat ini</label>
-        <input
-          id="current-password"
-          type="password"
-          autoComplete="current-password"
-          aria-invalid={Boolean(errors.currentPassword)}
-          {...register('currentPassword')}
-        />
-        {errors.currentPassword ? (
-          <p className="field-error">{errors.currentPassword.message}</p>
-        ) : null}
+      <PasswordField
+        id="current-password"
+        label="Password saat ini"
+        autoComplete="current-password"
+        error={errors.currentPassword?.message}
+        {...register('currentPassword')}
+      />
+      <PasswordField
+        id="new-password"
+        label="Password baru"
+        autoComplete="new-password"
+        error={errors.newPassword?.message}
+        {...register('newPassword')}
+      />
+      <PasswordField
+        id="confirm-password"
+        label="Konfirmasi password baru"
+        autoComplete="new-password"
+        error={errors.confirmPassword?.message}
+        {...register('confirmPassword')}
+      />
+      <div className="dialog-actions">
+        <button
+          className="secondary-button"
+          type="button"
+          disabled={pending}
+          onClick={onCancel}
+        >
+          Batal
+        </button>
+        <button className="primary-button" type="submit" disabled={pending}>
+          {pending ? 'Mengubah…' : 'Ubah password'}
+        </button>
       </div>
-      <div className="field-group">
-        <label htmlFor="new-password">Password baru</label>
-        <input
-          id="new-password"
-          type="password"
-          autoComplete="new-password"
-          aria-invalid={Boolean(errors.newPassword)}
-          {...register('newPassword')}
-        />
-        {errors.newPassword ? (
-          <p className="field-error">{errors.newPassword.message}</p>
-        ) : null}
-      </div>
-      <div className="field-group">
-        <label htmlFor="confirm-password">Konfirmasi password baru</label>
-        <input
-          id="confirm-password"
-          type="password"
-          autoComplete="new-password"
-          aria-invalid={Boolean(errors.confirmPassword)}
-          {...register('confirmPassword')}
-        />
-        {errors.confirmPassword ? (
-          <p className="field-error">{errors.confirmPassword.message}</p>
-        ) : null}
-      </div>
-      <button
-        className="primary-button settings-submit"
-        type="submit"
-        disabled={pending}
-      >
-        {pending ? 'Mengubah…' : 'Ubah password'}
-      </button>
     </form>
   );
 }

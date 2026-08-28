@@ -2,9 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import { AppLayout } from '../dashboard/app-layout';
 import { useAuth } from '../auth/use-auth';
+import { ChangePasswordDialog } from './change-password-dialog';
 import { changePassword, getProfile, updatePreferences } from './profile.api';
 import { getProfileErrorMessage } from './profile-error';
-import { PasswordForm } from './password-form';
 import { PreferencesForm } from './preferences-form';
 import type { PasswordValues, PreferencesValues } from './profile.schemas';
 
@@ -17,6 +17,7 @@ export function ProfilePage() {
   );
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
+  const [passwordOpen, setPasswordOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const profile = useQuery({ queryKey: ['profile'], queryFn: getProfile });
   const preferences = useMutation({
@@ -75,9 +76,9 @@ export function ProfilePage() {
       <main className="dashboard-content profile-content">
         <header className="dashboard-heading">
           <div>
-            <p className="section-kicker">Akun dan preferensi</p>
-            <h1>Profile</h1>
-            <p>Kelola identitas akun, format tampilan, dan keamanan sesi.</p>
+            <p className="section-kicker">Profile</p>
+            <h1>Profile &amp; Pengaturan</h1>
+            <p>Kelola informasi pribadi dan keamanan akunmu.</p>
           </div>
         </header>
         {profile.isPending ? (
@@ -108,96 +109,117 @@ export function ProfilePage() {
           </section>
         ) : null}
         {profile.data ? (
-          <div className="profile-grid" aria-busy={profile.isRefetching}>
-            <section
-              className="content-card profile-card"
-              aria-labelledby="identity-title"
-            >
-              <p className="section-kicker">Identitas</p>
-              <h2 id="identity-title">Profile pengguna</h2>
-              <div className="profile-identity">
-                <span className="profile-avatar" aria-hidden="true">
-                  {profile.data.email.charAt(0).toUpperCase()}
-                </span>
-                <div>
-                  <strong>{profile.data.email}</strong>
-                  <span>
-                    Email dikelola oleh sistem dan tidak dapat diubah.
-                  </span>
-                </div>
-              </div>
-              <dl className="profile-facts">
-                <div>
-                  <dt>Mata uang aktif</dt>
-                  <dd>{profile.data.currency}</dd>
-                </div>
-                <div>
-                  <dt>Timezone aktif</dt>
-                  <dd>{profile.data.timezone}</dd>
-                </div>
-              </dl>
-              {profile.isRefetching ? (
-                <p className="background-refresh" role="status">
-                  Memperbarui profile…
-                </p>
-              ) : null}
-            </section>
-            <section
-              className="content-card profile-card"
-              aria-labelledby="preferences-title"
-            >
-              <p className="section-kicker">Settings</p>
-              <h2 id="preferences-title">Preferensi tampilan</h2>
-              {preferenceSuccess ? (
-                <p className="form-success" role="status">
-                  {preferenceSuccess}
-                </p>
-              ) : null}
-              <PreferencesForm
-                key={profile.data.updatedAt}
-                profile={profile.data}
-                pending={preferences.isPending}
-                error={preferenceError}
-                onSubmit={submitPreferences}
-              />
-            </section>
-            <section
-              className="content-card profile-card"
-              aria-labelledby="password-title"
-            >
-              <p className="section-kicker">Keamanan</p>
-              <h2 id="password-title">Ubah password</h2>
-              <p className="profile-description">
-                Setelah berhasil, backend mencabut seluruh refresh session.
-                Access token tetap hanya berada di memory.
-              </p>
-              <PasswordForm
-                pending={password.isPending}
-                error={passwordError}
-                success={passwordSuccess}
-                onSubmit={submitPassword}
-              />
-            </section>
-            <section className="content-card profile-card logout-card">
-              <div>
-                <h2>Keluar dari Alira</h2>
-                <p>
-                  Akhiri sesi pada perangkat ini dan bersihkan auth state
-                  frontend.
-                </p>
-              </div>
-              <button
-                className="danger-button"
-                type="button"
-                disabled={loggingOut}
-                onClick={() => void handleLogout()}
+          <div className="profile-layout" aria-busy={profile.isRefetching}>
+            <div className="profile-primary-column">
+              <section
+                className="content-card profile-card profile-overview"
+                aria-labelledby="identity-title"
               >
-                {loggingOut ? 'Keluar…' : 'Logout'}
-              </button>
-            </section>
+                <p className="section-kicker">Profile</p>
+                <h2 id="identity-title">Akun Alira</h2>
+                <div className="profile-identity">
+                  <span className="profile-avatar" aria-hidden="true">
+                    {profile.data.email.charAt(0).toUpperCase()}
+                  </span>
+                  <div>
+                    <strong>{profile.data.email}</strong>
+                    <span>Email login akunmu.</span>
+                  </div>
+                </div>
+                <dl className="profile-facts">
+                  <div>
+                    <dt>Mata uang aktif</dt>
+                    <dd>{profile.data.currency}</dd>
+                  </div>
+                  <div>
+                    <dt>Timezone aktif</dt>
+                    <dd>{profile.data.timezone}</dd>
+                  </div>
+                </dl>
+                {profile.isRefetching ? (
+                  <p className="background-refresh" role="status">
+                    Memperbarui profile…
+                  </p>
+                ) : null}
+              </section>
+              <section
+                className="content-card profile-card"
+                aria-labelledby="preferences-title"
+              >
+                <p className="section-kicker">Preferensi</p>
+                <h2 id="preferences-title">Format tampilan</h2>
+                {preferenceSuccess ? (
+                  <p className="form-success" role="status">
+                    {preferenceSuccess}
+                  </p>
+                ) : null}
+                <PreferencesForm
+                  key={profile.data.updatedAt}
+                  profile={profile.data}
+                  pending={preferences.isPending}
+                  error={preferenceError}
+                  onSubmit={submitPreferences}
+                />
+              </section>
+            </div>
+            <aside className="profile-aside">
+              <section
+                className="content-card profile-card security-card"
+                aria-labelledby="password-title"
+              >
+                <p className="section-kicker">Keamanan</p>
+                <h2 id="password-title">Keamanan akun</h2>
+                <p className="profile-description">
+                  Perbarui password secara berkala untuk menjaga keamanan akun.
+                </p>
+                {passwordSuccess ? (
+                  <p className="form-success" role="status">
+                    {passwordSuccess}
+                  </p>
+                ) : null}
+                <button
+                  className="secondary-button security-password-action"
+                  type="button"
+                  onClick={() => {
+                    setPasswordError(null);
+                    setPasswordOpen(true);
+                  }}
+                >
+                  Ubah password
+                </button>
+              </section>
+              <section className="content-card profile-card logout-card">
+                <div>
+                  <h2>Keluar dari Alira</h2>
+                  <p>Akhiri sesi pada perangkat ini.</p>
+                </div>
+                <button
+                  className="danger-button"
+                  type="button"
+                  disabled={loggingOut}
+                  onClick={() => void handleLogout()}
+                >
+                  {loggingOut ? 'Keluar…' : 'Logout'}
+                </button>
+              </section>
+            </aside>
           </div>
         ) : null}
       </main>
+      {passwordOpen ? (
+        <ChangePasswordDialog
+          pending={password.isPending}
+          error={passwordError}
+          onCancel={() => {
+            setPasswordOpen(false);
+            setPasswordError(null);
+          }}
+          onSubmit={submitPassword}
+          onSuccess={() => {
+            setPasswordOpen(false);
+          }}
+        />
+      ) : null}
     </AppLayout>
   );
 }
