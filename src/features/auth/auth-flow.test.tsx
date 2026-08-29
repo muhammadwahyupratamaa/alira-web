@@ -37,6 +37,7 @@ function renderAuthApp(route = '/login', strict = false) {
           </Route>
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<AuthTestDashboard />} />
+            <Route path="/accounts/new" element={<AuthTestOnboarding />} />
           </Route>
         </Routes>
       </AuthProvider>
@@ -44,6 +45,10 @@ function renderAuthApp(route = '/login', strict = false) {
   );
 
   return render(strict ? <StrictMode>{app}</StrictMode> : app);
+}
+
+function AuthTestOnboarding() {
+  return <h1>Onboarding account</h1>;
 }
 
 function AuthTestDashboard() {
@@ -154,6 +159,31 @@ describe('authentication flows', () => {
 
     expect(
       await screen.findByRole('heading', { name: /user@example.com/i }),
+    ).toBeVisible();
+  });
+
+  it('sends a user without an active account to account onboarding after login', async () => {
+    renderAuthApp();
+    await screen.findByRole('heading', { name: /masuk ke alira/i });
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockClear();
+    fetchMock.mockImplementation((input) =>
+      getRequestUrl(input).includes('/auth/login')
+        ? Promise.resolve(
+            jsonResponse({ accessToken: 'memory-token', user: testUser }),
+          )
+        : getRequestUrl(input).includes('/accounts')
+          ? Promise.resolve(jsonResponse([]))
+          : Promise.resolve(jsonResponse({}, 401)),
+    );
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/^email$/i), 'new@example.com');
+    await user.type(screen.getByLabelText(/^kata sandi$/i), 'Password1');
+    await user.click(screen.getByRole('button', { name: /^masuk$/i }));
+
+    expect(
+      await screen.findByRole('heading', { name: /onboarding account/i }),
     ).toBeVisible();
   });
 

@@ -2874,6 +2874,92 @@ body {
   width: 100%;
 }
 
+.dashboard-accounts {
+  margin-top: 1rem;
+}
+
+.section-link {
+  color: var(--color-accent-strong);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.section-link:hover {
+  text-decoration: underline;
+}
+
+.dashboard-account-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-account-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-account-list li:last-child {
+  border-bottom: 0;
+}
+
+.dashboard-account-list .account-type-mark {
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 0.7rem;
+}
+
+.dashboard-account-list a {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.dashboard-account-list a:hover strong {
+  color: var(--color-accent-strong);
+}
+
+.dashboard-account-list a strong,
+.dashboard-account-list a span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-account-list a strong {
+  font-size: 0.8rem;
+}
+
+.dashboard-account-list a span,
+.compact-message {
+  color: var(--color-muted);
+  font-size: 0.68rem;
+}
+
+.dashboard-account-list > li > strong {
+  font-size: clamp(0.78rem, 2.4vw, 0.95rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  white-space: nowrap;
+}
+
+.dashboard-accounts-empty {
+  min-height: 8rem;
+}
+
+.dashboard-accounts-loading {
+  min-height: 8rem;
+}
+
 .password-control {
   position: relative;
 }

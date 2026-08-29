@@ -5,7 +5,11 @@ import type { LoginInput, User } from './auth.types';
 export interface AuthContextValue {
   user: User | null;
   isBootstrapping: boolean;
-  login: (input: LoginInput) => Promise<void>;
+  postLoginPath?: string | undefined;
+  login: (
+    input: LoginInput,
+    beforeSession?: () => Promise<string | undefined>,
+  ) => Promise<void>;
   logout: () => Promise<void>;
   syncUser: (user: User) => void;
 }

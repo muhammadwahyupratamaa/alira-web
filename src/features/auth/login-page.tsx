@@ -1,17 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { getAuthErrorMessage } from './auth-error';
 import { AuthLayout } from './auth-layout';
 import { loginSchema, type LoginFormValues } from './auth.schemas';
 import { PasswordField } from './password-field';
 import { useAuth } from './use-auth';
+import { getAccounts } from '../accounts/account.api';
 
 export function LoginPage() {
   const { login } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -30,8 +30,17 @@ export function LoginPage() {
   async function onSubmit(values: LoginFormValues) {
     setSubmitError(null);
     try {
-      await login(values);
-      void navigate('/dashboard', { replace: true });
+      let destination = '/dashboard';
+      await login(values, async () => {
+        try {
+          const accounts = await getAccounts();
+          if (!accounts.some((account) => account.isActive))
+            destination = '/accounts/new';
+        } catch {
+          // Account lookup must not block a user with a valid session.
+        }
+        return destination;
+      });
     } catch (error) {
       setSubmitError(getAuthErrorMessage(error, 'login'));
     }

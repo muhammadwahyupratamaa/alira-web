@@ -22,10 +22,12 @@ import type { LoginInput, User } from './auth.types';
 export function AuthProvider({ children }: PropsWithChildren) {
   const [user, setUser] = useState<User | null>(null);
   const [isBootstrapping, setIsBootstrapping] = useState(true);
+  const [postLoginPath, setPostLoginPath] = useState<string | undefined>();
 
   const clearSession = useCallback(() => {
     setApiAccessToken(null);
     setUser(null);
+    setPostLoginPath(undefined);
   }, []);
 
   useEffect(() => {
@@ -54,10 +56,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
     };
   }, [clearSession]);
 
-  const login = useCallback(async (input: LoginInput) => {
-    const response = await loginRequest(input);
-    setUser(response.user);
-  }, []);
+  const login = useCallback(
+    async (
+      input: LoginInput,
+      beforeSession?: () => Promise<string | undefined>,
+    ) => {
+      const response = await loginRequest(input);
+      setPostLoginPath(await beforeSession?.());
+      setUser(response.user);
+    },
+    [],
+  );
 
   const logout = useCallback(async () => {
     try {
@@ -71,8 +80,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, isBootstrapping, login, logout, syncUser }),
-    [isBootstrapping, login, logout, syncUser, user],
+    () => ({ user, isBootstrapping, postLoginPath, login, logout, syncUser }),
+    [isBootstrapping, login, logout, postLoginPath, syncUser, user],
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;

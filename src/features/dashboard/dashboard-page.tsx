@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/use-auth';
 import { QuickAddDialog } from '../transactions/quick-add-dialog';
 import { AppLayout } from './app-layout';
+import { AccountOverview } from './account-overview';
 import { DashboardSkeleton } from './dashboard-skeleton';
 import {
   formatPeriod,
@@ -183,6 +184,7 @@ function DashboardContent({
         <ExpenseChart breakdown={breakdown} />
         <RecentTransactions transactions={recent} timezone={timezone} />
       </div>
+      <AccountOverview />
     </div>
   );
 }

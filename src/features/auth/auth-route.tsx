@@ -13,10 +13,10 @@ export function ProtectedRoute() {
 }
 
 export function GuestRoute() {
-  const { user, isBootstrapping } = useAuth();
+  const { user, isBootstrapping, postLoginPath } = useAuth();
 
   if (isBootstrapping) return <SessionLoading />;
-  if (user) return <Navigate to="/dashboard" replace />;
+  if (user) return <Navigate to={postLoginPath ?? '/dashboard'} replace />;
 
   return <Outlet />;
 }
