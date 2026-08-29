@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useAuth } from '../auth/use-auth';
+import { QuickAddDialog } from '../transactions/quick-add-dialog';
 import { AppLayout } from './app-layout';
 import { DashboardSkeleton } from './dashboard-skeleton';
 import {
@@ -29,6 +30,7 @@ export function DashboardPage() {
   const [period, setPeriod] = useState<DashboardPeriod>(() =>
     getCurrentPeriod(timezone),
   );
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
   const dashboard = useDashboard(period);
 
   return (
@@ -92,9 +94,20 @@ export function DashboardPage() {
             breakdown={dashboard.breakdown.data}
             recent={dashboard.recent.data}
             isRefreshing={dashboard.isRefreshing}
+            onQuickAdd={() => {
+              setQuickAddOpen(true);
+            }}
           />
         ) : null}
       </main>
+      {quickAddOpen ? (
+        <QuickAddDialog
+          timezone={timezone}
+          onClose={() => {
+            setQuickAddOpen(false);
+          }}
+        />
+      ) : null}
     </AppLayout>
   );
 }
@@ -106,6 +119,7 @@ function DashboardContent({
   breakdown,
   recent,
   isRefreshing,
+  onQuickAdd,
 }: {
   period: DashboardPeriod;
   timezone: string;
@@ -113,6 +127,7 @@ function DashboardContent({
   breakdown: CategoryBreakdown;
   recent: RecentTransaction[];
   isRefreshing: boolean;
+  onQuickAdd: () => void;
 }) {
   const isEmpty =
     recent.length === 0 &&
@@ -155,10 +170,10 @@ function DashboardContent({
       </div>
       <SummaryCards summary={summary} />
       <div className="quick-actions" aria-label="Aksi cepat">
-        <Link className="primary-link" to="/transactions/new">
+        <button className="primary-button" type="button" onClick={onQuickAdd}>
           <PlusIcon />
           Tambah transaksi
-        </Link>
+        </button>
         <Link className="secondary-link" to="/accounts/new">
           <WalletIcon />
           Tambah account

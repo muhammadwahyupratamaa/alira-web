@@ -1,5 +1,11 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { PropsWithChildren } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
@@ -196,6 +202,22 @@ describe('DashboardPage', () => {
     expect(
       await screen.findByText('Rp900.719.925.474.099.312.345.678,12'),
     ).toBeVisible();
+  });
+
+  it('opens Quick Add from the dashboard and focuses the amount field', async () => {
+    renderDashboard();
+    await screen.findAllByText('Rp1.500.000');
+    await userEvent.click(
+      within(screen.getByLabelText('Aksi cepat')).getByRole('button', {
+        name: 'Tambah transaksi',
+      }),
+    );
+    expect(screen.getByRole('dialog')).toHaveTextContent(/tambah transaksi/i);
+    expect(screen.getByLabelText('Nominal')).toHaveFocus();
+    await userEvent.click(
+      screen.getByRole('button', { name: /tutup tambah transaksi/i }),
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
   it('updates period queries without adding unsupported params to recent', async () => {

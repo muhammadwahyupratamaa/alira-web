@@ -13,6 +13,52 @@ import {
 } from './transaction.schemas';
 import type { Transaction } from './transaction.types';
 
+const lastSelectionKey = 'alira:last-transaction-selection';
+
+function getLastSelection(): Pick<
+  TransactionFormValues,
+  'type' | 'accountId' | 'categoryId'
+> | null {
+  try {
+    const stored = sessionStorage.getItem(lastSelectionKey);
+    if (!stored) return null;
+    const value: unknown = JSON.parse(stored);
+    if (
+      typeof value !== 'object' ||
+      value === null ||
+      !('type' in value) ||
+      !('accountId' in value) ||
+      !('categoryId' in value)
+    )
+      return null;
+    const { type, accountId, categoryId } = value;
+    if (
+      (type !== 'INCOME' && type !== 'EXPENSE') ||
+      typeof accountId !== 'string' ||
+      typeof categoryId !== 'string'
+    )
+      return null;
+    return { type, accountId, categoryId };
+  } catch {
+    return null;
+  }
+}
+
+function rememberLastSelection(values: TransactionFormValues) {
+  try {
+    sessionStorage.setItem(
+      lastSelectionKey,
+      JSON.stringify({
+        type: values.type,
+        accountId: values.accountId,
+        categoryId: values.categoryId,
+      }),
+    );
+  } catch {
+    // Quick Add still works if browser storage is unavailable.
+  }
+}
+
 export function TransactionForm({
   transaction,
   timezone,
@@ -24,7 +70,7 @@ export function TransactionForm({
   timezone: string;
   pending: boolean;
   error: string | null;
-  onSubmit: (values: TransactionFormValues) => Promise<void>;
+  onSubmit: (values: TransactionFormValues) => Promise<boolean>;
 }) {
   const accounts = useQuery({ queryKey: ['accounts'], queryFn: getAccounts });
   const categories = useQuery({
@@ -37,6 +83,7 @@ export function TransactionForm({
     month: '2-digit',
     day: '2-digit',
   }).format(new Date());
+  const lastSelection = transaction ? null : getLastSelection();
   const {
     register,
     handleSubmit,
@@ -56,9 +103,9 @@ export function TransactionForm({
           note: typeof transaction.note === 'string' ? transaction.note : '',
         }
       : {
-          type: 'EXPENSE',
-          accountId: '',
-          categoryId: '',
+          type: lastSelection?.type ?? 'EXPENSE',
+          accountId: lastSelection?.accountId ?? '',
+          categoryId: lastSelection?.categoryId ?? '',
           amount: '',
           transactionDate: today,
           note: '',
@@ -79,7 +126,7 @@ export function TransactionForm({
       });
       return;
     }
-    await onSubmit(values);
+    if (await onSubmit(values)) rememberLastSelection(values);
   }
   return (
     <form
@@ -111,6 +158,7 @@ export function TransactionForm({
           <span>Rp</span>
           <input
             id="transaction-amount"
+            autoFocus={!transaction}
             inputMode="decimal"
             aria-invalid={Boolean(errors.amount)}
             {...register('amount')}

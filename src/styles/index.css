@@ -2630,6 +2630,7 @@ body {
 }
 
 .quick-actions .primary-link,
+.quick-actions .primary-button,
 .quick-actions .secondary-link {
   min-height: 2.8rem;
   border-radius: 0.8rem;
@@ -2850,6 +2851,27 @@ body {
 
 .password-dialog .dialog-actions {
   margin-top: 0.2rem;
+}
+
+.quick-add-dialog {
+  width: min(100%, 34rem);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: clamp(1.25rem, 4vw, 1.7rem);
+  border-radius: 1.35rem;
+}
+
+.quick-add-dialog > p:not(.section-kicker, .form-alert) {
+  max-width: 42ch;
+  margin-bottom: 1.15rem;
+}
+
+.quick-add-dialog .account-form {
+  gap: 1rem;
+}
+
+.quick-add-dialog .account-submit {
+  width: 100%;
 }
 
 .password-control {

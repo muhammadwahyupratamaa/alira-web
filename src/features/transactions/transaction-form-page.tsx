@@ -38,9 +38,10 @@ export function TransactionFormPage() {
   });
   async function submit(values: TransactionFormValues) {
     setError(null);
-    await mutation
+    return mutation
       .mutateAsync({ ...values, note: values.note || null })
-      .catch(() => undefined);
+      .then(() => true)
+      .catch(() => false);
   }
   return (
     <AppLayout>
