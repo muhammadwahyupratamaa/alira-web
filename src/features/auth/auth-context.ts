@@ -11,6 +11,7 @@ export interface AuthContextValue {
     beforeSession?: () => Promise<string | undefined>,
   ) => Promise<void>;
   logout: () => Promise<void>;
+  logoutAll?: () => Promise<void>;
   syncUser: (user: User) => void;
 }
 

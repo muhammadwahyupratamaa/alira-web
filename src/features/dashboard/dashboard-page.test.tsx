@@ -159,6 +159,7 @@ describe('DashboardPage', () => {
 
   afterEach(() => {
     setApiAccessToken(null);
+    sessionStorage.clear();
     vi.unstubAllGlobals();
   });
 
@@ -177,6 +178,12 @@ describe('DashboardPage', () => {
     expect(screen.getByText('−Rp75.000,5')).toBeVisible();
     expect(screen.getByText(/25 Agu 2026/i)).toBeVisible();
     expect(screen.getByText('Gaji Agustus')).toBeVisible();
+    expect(
+      screen.getAllByRole('link', { name: /edit transaksi: gaji/i })[0],
+    ).toHaveAttribute('href', `/transactions/${recent[0].id}`);
+    expect(
+      screen.getAllByRole('button', { name: /duplikat transaksi:/i }),
+    ).toHaveLength(2);
     expect(screen.getByText('+', { selector: '.ledger-sign' })).toBeVisible();
     expect(screen.getByText('−', { selector: '.ledger-sign' })).toBeVisible();
     expect(screen.getByText('=', { selector: '.ledger-sign' })).toBeVisible();
@@ -218,6 +225,76 @@ describe('DashboardPage', () => {
       screen.getByRole('button', { name: /tutup tambah transaksi/i }),
     );
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('confirms a Quick Add and lets the user undo it', async () => {
+    const fetchMock = vi.fn(
+      (input: RequestInfo | URL, options?: RequestInit) => {
+        const requestUrl = getRequestUrl(input);
+        if (requestUrl.includes('/accounts')) {
+          return Promise.resolve(
+            jsonResponse([
+              {
+                id: recent[0].account.id,
+                name: 'Bank Utama',
+                type: 'BANK',
+                initialBalance: '0',
+                currentBalance: '0',
+                isActive: true,
+                createdAt: '',
+                updatedAt: '',
+              },
+            ]),
+          );
+        }
+        if (requestUrl.includes('/categories')) {
+          return Promise.resolve(
+            jsonResponse([
+              {
+                id: recent[1].category.id,
+                name: 'Makanan',
+                type: 'EXPENSE',
+                icon: null,
+                color: null,
+                isDefault: true,
+                isActive: true,
+                createdAt: '',
+                updatedAt: '',
+              },
+            ]),
+          );
+        }
+        if (options?.method === 'POST')
+          return Promise.resolve(jsonResponse(recent[1], 201));
+        if (options?.method === 'DELETE')
+          return Promise.resolve(new Response(null, { status: 204 }));
+        return successfulFetch(input);
+      },
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    renderDashboard();
+    await screen.findAllByText('Rp1.500.000');
+    await userEvent.click(
+      within(screen.getByLabelText('Aksi cepat')).getByRole('button', {
+        name: 'Tambah transaksi',
+      }),
+    );
+    await userEvent.type(screen.getByLabelText('Nominal'), '75000');
+    await userEvent.click(screen.getByRole('combobox', { name: 'Account' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Bank Utama' }));
+    await userEvent.click(screen.getByRole('combobox', { name: 'Kategori' }));
+    await userEvent.click(screen.getByRole('option', { name: 'Makanan' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Simpan transaksi' }),
+    );
+    expect(
+      await screen.findByText(/transaksi berhasil ditambahkan/i),
+    ).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
+    expect(await screen.findByText(/transaksi dibatalkan/i)).toBeVisible();
+    expect(
+      fetchMock.mock.calls.some(([, options]) => options?.method === 'DELETE'),
+    ).toBe(true);
   });
 
   it('updates period queries without adding unsupported params to recent', async () => {

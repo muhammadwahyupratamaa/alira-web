@@ -6,6 +6,7 @@ import {
   type ChartOptions,
 } from 'chart.js';
 import { Doughnut } from 'react-chartjs-2';
+import { Link } from 'react-router-dom';
 
 import { formatIdr } from './dashboard-formatters';
 import type { CategoryBreakdown } from './dashboard.types';
@@ -93,7 +94,13 @@ export function ExpenseChart({ breakdown }: { breakdown: CategoryBreakdown }) {
                 style={{ backgroundColor: palette[index % palette.length] }}
                 aria-hidden="true"
               />
-              <span className="legend-name">{item.name}</span>
+              <Link
+                className="legend-name"
+                to={`/transactions?categoryId=${encodeURIComponent(item.categoryId)}`}
+                aria-label={`Lihat transaksi pengeluaran ${item.name}`}
+              >
+                {item.name}
+              </Link>
               <strong>{item.percentage}%</strong>
               <span className="legend-total">{formatIdr(item.total)}</span>
             </li>

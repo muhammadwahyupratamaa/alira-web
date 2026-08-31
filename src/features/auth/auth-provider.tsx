@@ -14,6 +14,7 @@ import {
   getCurrentUser,
   login as loginRequest,
   logout as logoutRequest,
+  logoutAll as logoutAllRequest,
   refreshSession,
 } from './auth.api';
 import { AuthContext, type AuthContextValue } from './auth-context';
@@ -75,13 +76,28 @@ export function AuthProvider({ children }: PropsWithChildren) {
       clearSession();
     }
   }, [clearSession]);
+  const logoutAll = useCallback(async () => {
+    try {
+      await logoutAllRequest();
+    } finally {
+      clearSession();
+    }
+  }, [clearSession]);
   const syncUser = useCallback((nextUser: User) => {
     setUser(nextUser);
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ user, isBootstrapping, postLoginPath, login, logout, syncUser }),
-    [isBootstrapping, login, logout, postLoginPath, syncUser, user],
+    () => ({
+      user,
+      isBootstrapping,
+      postLoginPath,
+      login,
+      logout,
+      logoutAll,
+      syncUser,
+    }),
+    [isBootstrapping, login, logout, logoutAll, postLoginPath, syncUser, user],
   );
 
   return <AuthContext value={value}>{children}</AuthContext>;

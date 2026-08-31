@@ -228,7 +228,9 @@ describe('account management', () => {
     expect(
       await screen.findByText(/perubahan account berhasil/i),
     ).toBeVisible();
-    expect(listCalls).toBeGreaterThanOrEqual(1);
+    await waitFor(() => {
+      expect(listCalls).toBeGreaterThanOrEqual(1);
+    });
     const patchCall = fetchMock.mock.calls.find(
       ([, options]) => options?.method === 'PATCH',
     );

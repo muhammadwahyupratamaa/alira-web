@@ -89,7 +89,7 @@ export function CategoriesPage() {
           <div>
             <p className="section-kicker">Atur klasifikasi</p>
             <h1>Kategori</h1>
-            <p>Pisahkan setiap aliran pemasukan dan pengeluaran dengan rapi.</p>
+            <p>Pisahkan setiap Aliran pemasukan dan pengeluaran dengan rapi.</p>
           </div>
           <button
             className="primary-link link-button"

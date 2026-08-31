@@ -93,6 +93,7 @@ describe('transaction management', () => {
   });
   afterEach(() => {
     setApiAccessToken(null);
+    sessionStorage.clear();
     vi.unstubAllGlobals();
   });
   it('renders precise money, date, type, pagination and combined URL filters', async () => {
@@ -158,7 +159,7 @@ describe('transaction management', () => {
       json({ data: [], page: 1, limit: 20, total: 0, totalPages: 0 }),
     );
     await userEvent.click(screen.getByRole('button', { name: /coba lagi/i }));
-    expect(await screen.findByText(/catat aliran pertamamu/i)).toBeVisible();
+    expect(await screen.findByText(/catat Aliran pertamamu/i)).toBeVisible();
   });
   it('validates create form, filters active resources by type, and preserves decimal strings', async () => {
     const fetchMock = vi.fn(
@@ -248,6 +249,43 @@ describe('transaction management', () => {
       );
     });
   });
+  it('clears a remembered account after it has been deactivated', async () => {
+    sessionStorage.setItem(
+      'Alira:last-transaction-selection',
+      JSON.stringify({
+        type: 'EXPENSE',
+        accountId: 'inactive',
+        categoryId,
+      }),
+    );
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        if (url(input).includes('/accounts'))
+          return Promise.resolve(
+            json([
+              {
+                id: 'inactive',
+                name: 'Bank Lama',
+                type: 'BANK',
+                initialBalance: '0',
+                currentBalance: '0',
+                isActive: false,
+                createdAt: '',
+                updatedAt: '',
+              },
+            ]),
+          );
+        return Promise.resolve(json([{ ...transaction.category }]));
+      }),
+    );
+    renderRoutes('/transactions/new');
+    await screen.findByText('Pilih account');
+    await userEvent.click(
+      screen.getByRole('button', { name: /simpan transaksi/i }),
+    );
+    expect(await screen.findByText(/pilih account yang valid/i)).toBeVisible();
+  });
   it('duplicates, soft deletes, restores, and invalidates related data', async () => {
     const fetchMock = vi.fn(
       (input: RequestInfo | URL, options?: RequestInit) => {
@@ -276,10 +314,14 @@ describe('transaction management', () => {
     vi.stubGlobal('fetch', fetchMock);
     renderRoutes();
     await userEvent.click(
-      await screen.findByRole('button', { name: 'Duplikat' }),
+      await screen.findByRole('button', {
+        name: /duplikat transaksi: makanan/i,
+      }),
     );
     expect(await screen.findByText(/berhasil diduplikasi/i)).toBeVisible();
-    await userEvent.click(screen.getByRole('button', { name: 'Hapus' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: /hapus transaksi: makanan/i }),
+    );
     expect(screen.getByRole('dialog')).toHaveTextContent(
       /dapat memulihkannya/i,
     );

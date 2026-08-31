@@ -55,3 +55,12 @@ export async function logout(): Promise<undefined> {
     setApiAccessToken(null);
   }
 }
+
+export async function logoutAll(): Promise<undefined> {
+  try {
+    await apiRequest<undefined>('auth/logout-all', { method: 'POST' });
+    return undefined;
+  } finally {
+    setApiAccessToken(null);
+  }
+}

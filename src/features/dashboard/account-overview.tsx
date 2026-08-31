@@ -46,7 +46,10 @@ export function AccountOverview() {
               <span className="account-type-mark" aria-hidden="true">
                 <WalletIcon />
               </span>
-              <Link to={`/accounts/${account.id}`}>
+              <Link
+                to={`/transactions?accountId=${encodeURIComponent(account.id)}`}
+                aria-label={`Lihat transaksi untuk ${account.name}`}
+              >
                 <strong>{account.name}</strong>
                 <span>
                   {account.type === 'EWALLET' ? 'E-Wallet' : account.type}

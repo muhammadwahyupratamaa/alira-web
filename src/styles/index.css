@@ -2683,10 +2683,11 @@ body {
 
 .account-card dd {
   overflow: visible;
+  overflow-wrap: anywhere;
   font-size: clamp(0.8rem, 2vw, 1rem);
   font-variant-numeric: tabular-nums;
   text-overflow: clip;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .account-card > footer {

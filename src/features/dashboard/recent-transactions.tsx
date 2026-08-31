@@ -1,12 +1,17 @@
 import { formatFinancialDate, formatIdr } from './dashboard-formatters';
 import type { RecentTransaction } from './dashboard.types';
+import { Link } from 'react-router-dom';
 
 export function RecentTransactions({
   transactions,
   timezone,
+  onDuplicate,
+  duplicatePending,
 }: {
   transactions: RecentTransaction[];
   timezone: string;
+  onDuplicate: (id: string) => void;
+  duplicatePending: boolean;
 }) {
   return (
     <section
@@ -55,6 +60,24 @@ export function RecentTransactions({
                     {formatIdr(transaction.amount)}
                   </strong>
                   <span>{isIncome ? 'Pemasukan' : 'Pengeluaran'}</span>
+                </div>
+                <div className="transaction-row-actions">
+                  <Link
+                    to={`/transactions/${transaction.id}`}
+                    aria-label={`Edit transaksi: ${transaction.category.name}`}
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    type="button"
+                    disabled={duplicatePending}
+                    aria-label={`Duplikat transaksi: ${transaction.category.name}`}
+                    onClick={() => {
+                      onDuplicate(transaction.id);
+                    }}
+                  >
+                    Duplikat
+                  </button>
                 </div>
               </li>
             );

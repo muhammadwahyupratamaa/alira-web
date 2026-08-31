@@ -9,7 +9,7 @@ import { PreferencesForm } from './preferences-form';
 import type { PasswordValues, PreferencesValues } from './profile.schemas';
 
 export function ProfilePage() {
-  const { syncUser, logout } = useAuth();
+  const { syncUser, logout, logoutAll } = useAuth();
   const client = useQueryClient();
   const [preferenceError, setPreferenceError] = useState<string | null>(null);
   const [preferenceSuccess, setPreferenceSuccess] = useState<string | null>(
@@ -19,6 +19,7 @@ export function ProfilePage() {
   const [passwordSuccess, setPasswordSuccess] = useState<string | null>(null);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [loggingOutEverywhere, setLoggingOutEverywhere] = useState(false);
   const profile = useQuery({ queryKey: ['profile'], queryFn: getProfile });
   const preferences = useMutation({
     mutationFn: updatePreferences,
@@ -69,6 +70,19 @@ export function ProfilePage() {
       /* provider clears memory state */
     } finally {
       setLoggingOut(false);
+    }
+  }
+  async function handleLogoutEverywhere() {
+    if (
+      !logoutAll ||
+      !window.confirm('Keluar dari semua perangkat? Semua sesi akan berakhir.')
+    )
+      return;
+    setLoggingOutEverywhere(true);
+    try {
+      await logoutAll();
+    } finally {
+      setLoggingOutEverywhere(false);
     }
   }
   return (
@@ -200,6 +214,16 @@ export function ProfilePage() {
                   onClick={() => void handleLogout()}
                 >
                   {loggingOut ? 'Keluar…' : 'Logout'}
+                </button>
+                <button
+                  className="text-danger-button"
+                  type="button"
+                  disabled={loggingOutEverywhere}
+                  onClick={() => void handleLogoutEverywhere()}
+                >
+                  {loggingOutEverywhere
+                    ? 'Mengakhiri semua sesi…'
+                    : 'Keluar dari semua perangkat'}
                 </button>
               </section>
             </aside>

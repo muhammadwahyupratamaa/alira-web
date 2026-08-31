@@ -21,7 +21,7 @@ describe('AppErrorBoundary', () => {
       /data anda tetap aman/i,
     );
     expect(
-      screen.getByRole('heading', { name: /alira belum dapat dibuka/i }),
+      screen.getByRole('heading', { name: /Alira belum dapat dibuka/i }),
     ).toHaveFocus();
     expect(
       screen.getByRole('link', { name: /kembali ke halaman masuk/i }),
@@ -33,6 +33,6 @@ describe('AppErrorBoundary', () => {
       </AppErrorBoundary>,
     );
     await userEvent.click(screen.getByRole('button', { name: /coba lagi/i }));
-    expect(screen.getByText(/alira kembali siap/i)).toBeVisible();
+    expect(screen.getByText(/Alira kembali siap/i)).toBeVisible();
   });
 });
