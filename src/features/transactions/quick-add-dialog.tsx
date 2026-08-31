@@ -5,22 +5,26 @@ import { createTransaction } from './transaction.api';
 import { getTransactionErrorMessage } from './transaction-error';
 import { TransactionForm } from './transaction-form';
 import type { TransactionFormValues } from './transaction.schemas';
+import type { Transaction } from './transaction.types';
 import { useTransactionInvalidation } from './use-transaction-invalidation';
 
 export function QuickAddDialog({
   timezone,
   onClose,
+  onSuccess,
 }: {
   timezone: string;
   onClose: () => void;
+  onSuccess: (transaction: Transaction) => void;
 }) {
   const dialogRef = useRef<HTMLElement>(null);
   const invalidate = useTransactionInvalidation();
   const [error, setError] = useState<string | null>(null);
   const mutation = useMutation({
     mutationFn: createTransaction,
-    onSuccess: async () => {
+    onSuccess: async (transaction) => {
       await invalidate();
+      onSuccess(transaction);
       onClose();
     },
     onError: (caught) => {

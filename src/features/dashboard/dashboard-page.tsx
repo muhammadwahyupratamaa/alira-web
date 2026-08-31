@@ -1,8 +1,15 @@
-import { useState } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { useAuth } from '../auth/use-auth';
 import { QuickAddDialog } from '../transactions/quick-add-dialog';
+import {
+  deleteTransaction,
+  duplicateTransaction,
+} from '../transactions/transaction.api';
+import { getTransactionErrorMessage } from '../transactions/transaction-error';
+import { useTransactionInvalidation } from '../transactions/use-transaction-invalidation';
 import { AppLayout } from './app-layout';
 import { AccountOverview } from './account-overview';
 import { DashboardSkeleton } from './dashboard-skeleton';
@@ -32,7 +39,43 @@ export function DashboardPage() {
     getCurrentPeriod(timezone),
   );
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [quickAddUndoId, setQuickAddUndoId] = useState<string | null>(null);
+  const [quickAddFeedback, setQuickAddFeedback] = useState<string | null>(null);
   const dashboard = useDashboard(period);
+  const invalidateTransactions = useTransactionInvalidation();
+  const undoQuickAdd = useMutation({
+    mutationFn: deleteTransaction,
+    onSuccess: async () => {
+      await invalidateTransactions();
+      setQuickAddUndoId(null);
+      setQuickAddFeedback('Transaksi dibatalkan.');
+    },
+    onError: (error) => {
+      setQuickAddFeedback(getTransactionErrorMessage(error));
+    },
+  });
+  const duplicate = useMutation({
+    mutationFn: duplicateTransaction,
+    onSuccess: async () => {
+      await invalidateTransactions();
+      if (!quickAddUndoId)
+        setQuickAddFeedback('Transaksi berhasil diduplikasi untuk hari ini.');
+    },
+    onError: (error) => {
+      if (!quickAddUndoId)
+        setQuickAddFeedback(getTransactionErrorMessage(error));
+    },
+  });
+  useEffect(() => {
+    if (!quickAddUndoId) return;
+    const timeout = window.setTimeout(() => {
+      setQuickAddUndoId(null);
+      setQuickAddFeedback(null);
+    }, 8_000);
+    return () => {
+      window.clearTimeout(timeout);
+    };
+  }, [quickAddUndoId]);
 
   return (
     <AppLayout>
@@ -41,7 +84,7 @@ export function DashboardPage() {
           <div>
             <p className="section-kicker">Ringkasan keuangan</p>
             <h1>Dashboard</h1>
-            <p>Pantau setiap aliran keuanganmu dalam satu pandangan.</p>
+            <p>Pantau setiap Aliran keuanganmu dalam satu pandangan.</p>
           </div>
           <label className="period-control">
             <span className="period-control-label">
@@ -61,6 +104,22 @@ export function DashboardPage() {
             />
           </label>
         </header>
+        {quickAddFeedback ? (
+          <div className="form-success transaction-feedback" role="status">
+            <span>{quickAddFeedback}</span>
+            {quickAddUndoId ? (
+              <button
+                type="button"
+                disabled={undoQuickAdd.isPending}
+                onClick={() => {
+                  undoQuickAdd.mutate(quickAddUndoId);
+                }}
+              >
+                {undoQuickAdd.isPending ? 'Membatalkan…' : 'Undo'}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
 
         {dashboard.isLoading ? <DashboardSkeleton /> : null}
         {dashboard.isError ? (
@@ -95,6 +154,10 @@ export function DashboardPage() {
             breakdown={dashboard.breakdown.data}
             recent={dashboard.recent.data}
             isRefreshing={dashboard.isRefreshing}
+            duplicatePending={duplicate.isPending}
+            onDuplicate={(id) => {
+              duplicate.mutate(id);
+            }}
             onQuickAdd={() => {
               setQuickAddOpen(true);
             }}
@@ -106,6 +169,10 @@ export function DashboardPage() {
           timezone={timezone}
           onClose={() => {
             setQuickAddOpen(false);
+          }}
+          onSuccess={(transaction) => {
+            setQuickAddUndoId(transaction.id);
+            setQuickAddFeedback('Transaksi berhasil ditambahkan.');
           }}
         />
       ) : null}
@@ -120,6 +187,8 @@ function DashboardContent({
   breakdown,
   recent,
   isRefreshing,
+  onDuplicate,
+  duplicatePending,
   onQuickAdd,
 }: {
   period: DashboardPeriod;
@@ -128,6 +197,8 @@ function DashboardContent({
   breakdown: CategoryBreakdown;
   recent: RecentTransaction[];
   isRefreshing: boolean;
+  onDuplicate: (id: string) => void;
+  duplicatePending: boolean;
   onQuickAdd: () => void;
 }) {
   const isEmpty =
@@ -182,7 +253,12 @@ function DashboardContent({
       </div>
       <div className="dashboard-grid">
         <ExpenseChart breakdown={breakdown} />
-        <RecentTransactions transactions={recent} timezone={timezone} />
+        <RecentTransactions
+          transactions={recent}
+          timezone={timezone}
+          onDuplicate={onDuplicate}
+          duplicatePending={duplicatePending}
+        />
       </div>
       <AccountOverview />
     </div>

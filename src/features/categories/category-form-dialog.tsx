@@ -19,6 +19,7 @@ export function CategoryFormDialog({
   onSubmit: (values: CategoryFormValues) => Promise<void>;
 }) {
   const nameRef = useRef<HTMLInputElement | null>(null);
+  const dialogRef = useRef<HTMLElement>(null);
   const {
     register,
     handleSubmit,
@@ -35,14 +36,47 @@ export function CategoryFormDialog({
       : { name: '', type: 'EXPENSE', icon: '', color: '' },
   });
   const nameRegistration = register('name');
-  useEffect(() => nameRef.current?.focus(), []);
+  useEffect(() => {
+    const previousFocus = document.activeElement as HTMLElement | null;
+    nameRef.current?.focus();
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !pending) onCancel();
+      if (event.key !== 'Tab') return;
+      const focusable = dialogRef.current?.querySelectorAll<HTMLElement>(
+        'input:not(:disabled), button:not(:disabled)',
+      );
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previousFocus?.focus();
+    };
+  }, [onCancel, pending]);
   return (
-    <div className="dialog-backdrop" role="presentation">
+    <div
+      className="dialog-backdrop"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget && !pending) onCancel();
+      }}
+    >
       <section
+        ref={dialogRef}
         className="confirm-dialog category-dialog"
         role="dialog"
         aria-modal="true"
         aria-labelledby="category-form-title"
+        aria-describedby="category-form-description"
       >
         <p className="section-kicker">
           {category ? 'Edit custom' : 'Kategori baru'}
@@ -50,6 +84,9 @@ export function CategoryFormDialog({
         <h2 id="category-form-title">
           {category ? 'Ubah kategori' : 'Tambah kategori'}
         </h2>
+        <p id="category-form-description">
+          Kategori custom dapat dipakai untuk transaksi baru.
+        </p>
         <form
           className="account-form"
           onSubmit={(event) => void handleSubmit(onSubmit)(event)}

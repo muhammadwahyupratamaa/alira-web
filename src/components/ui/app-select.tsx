@@ -14,6 +14,7 @@ export function AppSelect({
   value,
   options,
   invalid = false,
+  describedBy,
   onValueChange,
 }: {
   id?: string;
@@ -21,6 +22,7 @@ export function AppSelect({
   value: string;
   options: readonly { value: string; label: string }[];
   invalid?: boolean;
+  describedBy?: string | undefined;
   onValueChange: (value: string) => void;
 }) {
   return (
@@ -32,6 +34,7 @@ export function AppSelect({
     >
       <SelectTrigger
         aria-invalid={invalid || undefined}
+        aria-describedby={describedBy}
         aria-label={label}
         className="app-select-trigger w-full"
         id={id}

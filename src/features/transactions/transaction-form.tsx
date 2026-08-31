@@ -13,7 +13,7 @@ import {
 } from './transaction.schemas';
 import type { Transaction } from './transaction.types';
 
-const lastSelectionKey = 'alira:last-transaction-selection';
+const lastSelectionKey = 'Alira:last-transaction-selection';
 
 function getLastSelection(): Pick<
   TransactionFormValues,
@@ -112,9 +112,35 @@ export function TransactionForm({
         },
   });
   const type = useWatch({ control, name: 'type' });
+  const accountId = useWatch({ control, name: 'accountId' });
+  const categoryId = useWatch({ control, name: 'categoryId' });
   useEffect(() => {
-    if (!transaction) setValue('categoryId', '');
-  }, [type, setValue, transaction]);
+    if (
+      !transaction &&
+      accounts.data &&
+      accountId &&
+      !accounts.data.some(
+        (account) => account.id === accountId && account.isActive,
+      )
+    ) {
+      setValue('accountId', '', { shouldValidate: true });
+    }
+  }, [accountId, accounts.data, setValue, transaction]);
+  useEffect(() => {
+    if (
+      !transaction &&
+      categories.data &&
+      categoryId &&
+      !categories.data.some(
+        (category) =>
+          category.id === categoryId &&
+          category.isActive &&
+          category.type === type,
+      )
+    ) {
+      setValue('categoryId', '', { shouldValidate: true });
+    }
+  }, [categories.data, categoryId, setValue, transaction, type]);
   const activeAccounts = accounts.data?.filter((item) => item.isActive) ?? [];
   const matchingCategories =
     categories.data?.filter((item) => item.isActive && item.type === type) ??
@@ -160,12 +186,17 @@ export function TransactionForm({
             id="transaction-amount"
             autoFocus={!transaction}
             inputMode="decimal"
+            aria-describedby={
+              errors.amount ? 'transaction-amount-error' : undefined
+            }
             aria-invalid={Boolean(errors.amount)}
             {...register('amount')}
           />
         </div>
         {errors.amount ? (
-          <p className="field-error">{errors.amount.message}</p>
+          <p className="field-error" id="transaction-amount-error">
+            {errors.amount.message}
+          </p>
         ) : null}
       </div>
       <div className="transaction-form-grid">
@@ -177,6 +208,9 @@ export function TransactionForm({
             render={({ field }) => (
               <AppSelect
                 id="transaction-account"
+                describedBy={
+                  errors.accountId ? 'transaction-account-error' : undefined
+                }
                 invalid={Boolean(errors.accountId)}
                 label="Account"
                 onValueChange={field.onChange}
@@ -192,7 +226,9 @@ export function TransactionForm({
             )}
           />
           {errors.accountId ? (
-            <p className="field-error">{errors.accountId.message}</p>
+            <p className="field-error" id="transaction-account-error">
+              {errors.accountId.message}
+            </p>
           ) : null}
         </div>
         <div className="field-group">
@@ -203,6 +239,9 @@ export function TransactionForm({
             render={({ field }) => (
               <AppSelect
                 id="transaction-category"
+                describedBy={
+                  errors.categoryId ? 'transaction-category-error' : undefined
+                }
                 invalid={Boolean(errors.categoryId)}
                 label="Kategori"
                 onValueChange={field.onChange}
@@ -218,7 +257,9 @@ export function TransactionForm({
             )}
           />
           {errors.categoryId ? (
-            <p className="field-error">{errors.categoryId.message}</p>
+            <p className="field-error" id="transaction-category-error">
+              {errors.categoryId.message}
+            </p>
           ) : null}
         </div>
       </div>
@@ -228,18 +269,30 @@ export function TransactionForm({
           id="transaction-date"
           type="date"
           max={today}
+          aria-describedby={
+            errors.transactionDate ? 'transaction-date-error' : undefined
+          }
           aria-invalid={Boolean(errors.transactionDate)}
           {...register('transactionDate')}
         />
         {errors.transactionDate ? (
-          <p className="field-error">{errors.transactionDate.message}</p>
+          <p className="field-error" id="transaction-date-error">
+            {errors.transactionDate.message}
+          </p>
         ) : null}
       </div>
       <div className="field-group">
         <label htmlFor="transaction-note">Catatan (opsional)</label>
-        <textarea id="transaction-note" rows={3} {...register('note')} />
+        <textarea
+          id="transaction-note"
+          rows={3}
+          aria-describedby={errors.note ? 'transaction-note-error' : undefined}
+          {...register('note')}
+        />
         {errors.note ? (
-          <p className="field-error">{errors.note.message}</p>
+          <p className="field-error" id="transaction-note-error">
+            {errors.note.message}
+          </p>
         ) : null}
       </div>
       <button

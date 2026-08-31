@@ -74,7 +74,7 @@ describe('authentication flows', () => {
 
   it('validates login fields before sending credentials', async () => {
     renderAuthApp();
-    await screen.findByRole('heading', { name: /masuk ke alira/i });
+    await screen.findByRole('heading', { name: /masuk ke Alira/i });
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockClear();
 
@@ -145,7 +145,7 @@ describe('authentication flows', () => {
 
   it('logs in and opens the protected dashboard', async () => {
     renderAuthApp();
-    await screen.findByRole('heading', { name: /masuk ke alira/i });
+    await screen.findByRole('heading', { name: /masuk ke Alira/i });
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockClear();
     fetchMock.mockResolvedValueOnce(
@@ -164,7 +164,7 @@ describe('authentication flows', () => {
 
   it('sends a user without an active account to account onboarding after login', async () => {
     renderAuthApp();
-    await screen.findByRole('heading', { name: /masuk ke alira/i });
+    await screen.findByRole('heading', { name: /masuk ke Alira/i });
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockClear();
     fetchMock.mockImplementation((input) =>
@@ -189,7 +189,7 @@ describe('authentication flows', () => {
 
   it('uses a non-enumerating message for invalid credentials', async () => {
     renderAuthApp();
-    await screen.findByRole('heading', { name: /masuk ke alira/i });
+    await screen.findByRole('heading', { name: /masuk ke Alira/i });
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockClear();
     fetchMock.mockResolvedValueOnce(
@@ -250,7 +250,7 @@ describe('authentication flows', () => {
     renderAuthApp('/dashboard');
 
     expect(
-      await screen.findByRole('heading', { name: /masuk ke alira/i }),
+      await screen.findByRole('heading', { name: /masuk ke Alira/i }),
     ).toBeVisible();
     expect(screen.queryByText(/dashboard finansial/i)).not.toBeInTheDocument();
   });
@@ -270,7 +270,7 @@ describe('authentication flows', () => {
     await user.click(await screen.findByRole('button', { name: /keluar/i }));
 
     expect(
-      await screen.findByRole('heading', { name: /masuk ke alira/i }),
+      await screen.findByRole('heading', { name: /masuk ke Alira/i }),
     ).toBeVisible();
     expect(localSet).not.toHaveBeenCalled();
   });

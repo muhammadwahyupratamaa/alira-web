@@ -1,6 +1,6 @@
 # Alira Frontend
 
-Production-ready, mobile-first frontend for Alira, a personal finance tracker. Product requirements live in [`docs/PRD.md`](docs/PRD.md).
+Mobile-first frontend for Alira, a personal finance tracker. Product requirements live in [`docs/PRD.md`](docs/PRD.md). VPS deployment has not yet been configured in this repository.
 
 ## Stack
 
@@ -72,6 +72,8 @@ The API is not reverse-proxied. For credentialed refresh cookies, configure the 
 ## Continuous integration
 
 `.github/workflows/ci.yml` runs on pull requests and pushes to `main` with read-only repository permission. It uses Node.js 26 and `npm ci`, then checks formatting, linting, strict types, tests, coverage, and the production build without requiring a backend service.
+
+This repository has CI only; it does not build/push an image or deploy to a VPS. Production deployment still needs repository secrets, a deployment workflow, and backend CORS/cookie configuration for the final HTTPS origin.
 
 ## Troubleshooting
 

@@ -10,7 +10,7 @@ export function AuthLayout({ children }: PropsWithChildren) {
         </Link>
         <div>
           <p className="eyebrow">Personal finance, made clear</p>
-          <h1 id="brand-heading">Kendalikan setiap aliran keuanganmu.</h1>
+          <h1 id="brand-heading">Kendalikan setiap Aliran keuanganmu.</h1>
           <p className="lede">
             Catat dengan cepat, pahami dengan jernih, dan tumbuhkan kebiasaan
             finansial yang lebih baik.

@@ -18,6 +18,7 @@ export function DeactivateDialog({
   const cancelRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLElement>(null);
   useEffect(() => {
+    const previousFocus = document.activeElement as HTMLElement | null;
     cancelRef.current?.focus();
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape' && !isPending) onCancel();
@@ -39,6 +40,7 @@ export function DeactivateDialog({
     document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      previousFocus?.focus();
     };
   }, [isPending, onCancel]);
 

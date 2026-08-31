@@ -7,7 +7,7 @@ export function DashboardSkeleton() {
     >
       <div className="skeleton skeleton-title" />
       <div className="skeleton ledger-skeleton">
-        <span className="sr-only">Memuat ringkasan saldo dan aliran</span>
+        <span className="sr-only">Memuat ringkasan saldo dan Aliran</span>
       </div>
       <div className="dashboard-grid">
         <div className="skeleton skeleton-panel" />

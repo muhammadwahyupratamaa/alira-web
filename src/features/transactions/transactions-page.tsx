@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 
 import { AppSelect } from '@/components/ui/app-select';
@@ -71,6 +71,8 @@ export function TransactionsPage() {
   const [deletedId, setDeletedId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [mutationError, setMutationError] = useState<string | null>(null);
+  const deleteCancelRef = useRef<HTMLButtonElement>(null);
+  const deleteDialogRef = useRef<HTMLElement>(null);
   const query = useQuery({
     queryKey: ['transactions', filters],
     queryFn: () => listTransactions(filters),
@@ -113,6 +115,34 @@ export function TransactionsPage() {
       setMutationError(getTransactionErrorMessage(error));
     },
   });
+  useEffect(() => {
+    if (!confirmId) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    deleteCancelRef.current?.focus();
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !remove.isPending) setConfirmId(null);
+      if (event.key !== 'Tab') return;
+      const buttons =
+        deleteDialogRef.current?.querySelectorAll<HTMLButtonElement>(
+          'button:not(:disabled)',
+        );
+      if (!buttons?.length) return;
+      const first = buttons[0];
+      const last = buttons[buttons.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      previousFocus?.focus();
+    };
+  }, [confirmId, remove.isPending]);
   function setFilter(key: string, value: string) {
     const next = new URLSearchParams(params);
     if (value) next.set(key, value);
@@ -301,7 +331,7 @@ export function TransactionsPage() {
               <h2>
                 {hasFilters
                   ? 'Tidak ada transaksi yang cocok.'
-                  : 'Catat aliran pertamamu.'}
+                  : 'Catat Aliran pertamamu.'}
               </h2>
               <p>
                 {hasFilters
@@ -359,10 +389,16 @@ export function TransactionsPage() {
                       {formatIdr(item.amount)}
                     </strong>
                     <div className="transaction-row-actions">
-                      <Link to={`/transactions/${item.id}`}>Detail</Link>
+                      <Link
+                        to={`/transactions/${item.id}`}
+                        aria-label={`Edit transaksi: ${item.category.name}`}
+                      >
+                        Detail
+                      </Link>
                       <button
                         type="button"
                         disabled={duplicate.isPending}
+                        aria-label={`Duplikat transaksi: ${item.category.name}`}
                         onClick={() => {
                           duplicate.mutate(item.id);
                         }}
@@ -371,6 +407,7 @@ export function TransactionsPage() {
                       </button>
                       <button
                         type="button"
+                        aria-label={`Hapus transaksi: ${item.category.name}`}
                         onClick={() => {
                           setMutationError(null);
                           setConfirmId(item.id);
@@ -410,15 +447,24 @@ export function TransactionsPage() {
         ) : null}
       </main>
       {confirmId ? (
-        <div className="dialog-backdrop">
+        <div
+          className="dialog-backdrop"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget && !remove.isPending)
+              setConfirmId(null);
+          }}
+        >
           <section
+            ref={deleteDialogRef}
             className="confirm-dialog"
             role="dialog"
             aria-modal="true"
             aria-labelledby="delete-transaction-title"
+            aria-describedby="delete-transaction-description"
           >
             <h2 id="delete-transaction-title">Hapus transaksi?</h2>
-            <p>
+            <p id="delete-transaction-description">
               Transaksi akan dihapus sementara dan saldo dihitung ulang oleh
               backend. Anda dapat memulihkannya melalui tombol Undo.
             </p>
@@ -427,8 +473,10 @@ export function TransactionsPage() {
             ) : null}
             <div className="dialog-actions">
               <button
+                ref={deleteCancelRef}
                 className="secondary-button"
                 type="button"
+                disabled={remove.isPending}
                 onClick={() => {
                   setConfirmId(null);
                 }}

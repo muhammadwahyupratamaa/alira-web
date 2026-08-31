@@ -18,11 +18,13 @@ const profile = {
 };
 const syncUser = vi.fn();
 const logout = vi.fn().mockResolvedValue(undefined);
+const logoutAll = vi.fn().mockResolvedValue(undefined);
 const auth: AuthContextValue = {
   user: profile,
   isBootstrapping: false,
   login: vi.fn(),
   logout,
+  logoutAll,
   syncUser,
 };
 function json(body: unknown, status = 200) {
@@ -62,6 +64,7 @@ describe('ProfilePage', () => {
     setApiAccessToken('token');
     syncUser.mockClear();
     logout.mockClear();
+    logoutAll.mockClear();
   });
   afterEach(() => {
     setApiAccessToken(null);
@@ -205,6 +208,11 @@ describe('ProfilePage', () => {
     expect(sessionSetItem).not.toHaveBeenCalled();
     await userEvent.click(screen.getByRole('button', { name: 'Logout' }));
     expect(logout).toHaveBeenCalledOnce();
+    vi.stubGlobal('confirm', vi.fn().mockReturnValue(true));
+    await userEvent.click(
+      screen.getByRole('button', { name: /keluar dari semua perangkat/i }),
+    );
+    expect(logoutAll).toHaveBeenCalledOnce();
   });
 
   it('keeps the password form in an accessible dialog and closes it with controls or Escape', async () => {
