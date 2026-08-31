@@ -19,6 +19,7 @@ Register
 
 Dashboard
   -> lihat saldo, ringkasan bulanan, kategori, account, transaksi terbaru
+  -> pilih account/kategori untuk membuka History dengan filter URL
   -> Quick Add Transaction (modal)
       -> simpan transaksi
       -> refresh Dashboard + Account + History
@@ -47,7 +48,7 @@ Navigasi utama
 - Pemasukan, pengeluaran, net saving, dan perbandingan bulan sebelumnya.
 - Breakdown pengeluaran per kategori dengan doughnut chart.
 - Lima transaksi terbaru.
-- Account Overview untuk maksimal tiga account aktif, termasuk saldo dan link detail.
+- Account Overview untuk maksimal tiga account aktif, termasuk saldo dan link History terfilter.
 - Pemilih periode bulanan.
 - Loading, error/retry, dan empty state.
 - Tampilan mobile-first dengan surface translucent, blur lembut, sidebar responsif, dan angka Rupiah tabular.
@@ -60,6 +61,7 @@ Navigasi utama
 - Mendukung keyboard submit, Escape, tombol X, dan klik backdrop untuk menutup saat tidak sedang menyimpan.
 - Menggunakan validasi dan API transaksi yang sama dengan halaman transaksi biasa.
 - Setelah sukses, query transaksi, account, dan dashboard di-refresh.
+- Toast sukses menyediakan Undo selama 8 detik. Undo melakukan soft delete pada transaksi yang baru dibuat lalu me-refresh Dashboard, Account, dan History.
 - Tipe transaksi, account, dan kategori terakhir diingat selama session browser untuk mempercepat pencatatan berikutnya.
 - Halaman `/transactions/new` tetap tersedia sebagai alternatif full-page.
 
@@ -115,7 +117,6 @@ Navigasi utama
 ## PRD frontend yang belum dapat dibuat tanpa backend baru
 
 - Grafik bar/line income vs expense lintas periode: kontrak saat ini hanya menyediakan satu summary bulanan dan breakdown expense, belum ada endpoint time-series.
-- Toast sukses Quick Add dengan Undo spesifik transaksi baru: API saat ini mendukung soft delete/restore, tetapi durasi dan perilaku Undo belum diputuskan pada PRD.
 - Semua item backend/infrastruktur: rate limit, rotasi refresh token, ownership authorization, database constraint, Swagger, Docker, CI/CD, health endpoint, dan deployment.
 
 ## Verification terakhir
@@ -123,7 +124,7 @@ Navigasi utama
 - Format: pass.
 - ESLint: pass.
 - Strict typecheck: pass.
-- Vitest: 47 tests pass.
+- Vitest: 49 tests pass.
 - Production build: pass.
 - Review diff dan `git diff --check`: bersih saat commit terakhir.
 
