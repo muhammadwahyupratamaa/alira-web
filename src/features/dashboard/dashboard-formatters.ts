@@ -1,4 +1,4 @@
-import type { DashboardPeriod } from './dashboard.types';
+import type { CashFlowGranularity, DashboardPeriod } from './dashboard.types';
 
 const decimalPattern = /^(-?)(\d+)(?:\.(\d+))?$/;
 
@@ -65,4 +65,36 @@ export function formatPeriod(
     year: 'numeric',
     timeZone: timezone,
   }).format(new Date(Date.UTC(period.year, period.month - 1, 15)));
+}
+
+export function cashFlowRange(period: DashboardPeriod): {
+  from: string;
+  to: string;
+  granularity: CashFlowGranularity;
+} {
+  const month = String(period.month).padStart(2, '0');
+  const lastDay = new Date(Date.UTC(period.year, period.month, 0)).getUTCDate();
+  return {
+    from: `${String(period.year).padStart(4, '0')}-${month}-01`,
+    to: `${String(period.year).padStart(4, '0')}-${month}-${String(lastDay).padStart(2, '0')}`,
+    granularity: 'day',
+  };
+}
+
+export function formatCashFlowLabel(
+  label: string,
+  granularity: CashFlowGranularity,
+  timezone: string,
+): string {
+  if (granularity === 'month') {
+    const [year, month] = label.split('-').map(Number);
+    if (!year || !month) return label;
+    return new Intl.DateTimeFormat('id-ID', {
+      month: 'short',
+      year: 'numeric',
+      timeZone: timezone,
+    }).format(new Date(Date.UTC(year, month - 1, 15)));
+  }
+  const date = formatFinancialDate(label, timezone);
+  return granularity === 'week' ? `Minggu mulai ${date}` : date;
 }

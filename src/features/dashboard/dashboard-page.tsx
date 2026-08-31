@@ -12,6 +12,7 @@ import { getTransactionErrorMessage } from '../transactions/transaction-error';
 import { useTransactionInvalidation } from '../transactions/use-transaction-invalidation';
 import { AppLayout } from './app-layout';
 import { AccountOverview } from './account-overview';
+import { CashFlowChart } from './cash-flow-chart';
 import { DashboardSkeleton } from './dashboard-skeleton';
 import {
   formatPeriod,
@@ -31,6 +32,7 @@ import { ExpenseChart } from './expense-chart';
 import { RecentTransactions } from './recent-transactions';
 import { SummaryCards } from './summary-cards';
 import { useDashboard } from './use-dashboard';
+import { useCashFlow } from './use-cash-flow';
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -42,6 +44,7 @@ export function DashboardPage() {
   const [quickAddUndoId, setQuickAddUndoId] = useState<string | null>(null);
   const [quickAddFeedback, setQuickAddFeedback] = useState<string | null>(null);
   const dashboard = useDashboard(period);
+  const cashFlow = useCashFlow(period);
   const invalidateTransactions = useTransactionInvalidation();
   const undoQuickAdd = useMutation({
     mutationFn: deleteTransaction,
@@ -154,6 +157,10 @@ export function DashboardPage() {
             breakdown={dashboard.breakdown.data}
             recent={dashboard.recent.data}
             isRefreshing={dashboard.isRefreshing}
+            cashFlow={cashFlow.data}
+            cashFlowLoading={cashFlow.isPending}
+            cashFlowError={cashFlow.error}
+            onRetryCashFlow={() => void cashFlow.refetch()}
             duplicatePending={duplicate.isPending}
             onDuplicate={(id) => {
               duplicate.mutate(id);
@@ -187,6 +194,10 @@ function DashboardContent({
   breakdown,
   recent,
   isRefreshing,
+  cashFlow,
+  cashFlowLoading,
+  cashFlowError,
+  onRetryCashFlow,
   onDuplicate,
   duplicatePending,
   onQuickAdd,
@@ -197,6 +208,10 @@ function DashboardContent({
   breakdown: CategoryBreakdown;
   recent: RecentTransaction[];
   isRefreshing: boolean;
+  cashFlow: import('./dashboard.types').CashFlowResponse | undefined;
+  cashFlowLoading: boolean;
+  cashFlowError: Error | null;
+  onRetryCashFlow: () => void;
   onDuplicate: (id: string) => void;
   duplicatePending: boolean;
   onQuickAdd: () => void;
@@ -252,6 +267,13 @@ function DashboardContent({
         </Link>
       </div>
       <div className="dashboard-grid">
+        <CashFlowChart
+          cashFlow={cashFlow}
+          timezone={timezone}
+          isLoading={cashFlowLoading}
+          error={cashFlowError}
+          onRetry={onRetryCashFlow}
+        />
         <ExpenseChart breakdown={breakdown} />
         <RecentTransactions
           transactions={recent}

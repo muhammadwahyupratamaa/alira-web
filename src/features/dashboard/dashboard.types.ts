@@ -56,3 +56,18 @@ export interface DashboardPeriod {
   month: number;
   year: number;
 }
+
+export type CashFlowGranularity = 'day' | 'week' | 'month';
+
+export interface CashFlowBucket {
+  label: string;
+  income: string;
+  expense: string;
+}
+
+export interface CashFlowResponse {
+  from: string;
+  to: string;
+  granularity: CashFlowGranularity;
+  data: CashFlowBucket[];
+}

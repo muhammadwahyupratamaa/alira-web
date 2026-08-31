@@ -19,6 +19,9 @@ import { DashboardPage } from './dashboard-page';
 
 vi.mock('react-chartjs-2', () => ({
   Doughnut: () => <div data-testid="expense-doughnut" />,
+  Line: ({ data }: { data: { labels: string[] } }) => (
+    <div data-testid="cash-flow-line">{data.labels.join(', ')}</div>
+  ),
 }));
 
 const testUser = {
@@ -64,6 +67,20 @@ const breakdown = {
       total: '400000.00',
       percentage: '40.00',
     },
+  ],
+};
+
+const cashFlow = {
+  from: '2026-08-01',
+  to: '2026-08-31',
+  granularity: 'day' as const,
+  data: [
+    {
+      label: '2026-08-01',
+      income: '900719925474099312345678.12',
+      expense: '0.00',
+    },
+    { label: '2026-08-02', income: '0.00', expense: '75000.50' },
   ],
 };
 
@@ -123,6 +140,8 @@ function successfulFetch(input: RequestInfo | URL): Promise<Response> {
     return Promise.resolve(jsonResponse(breakdown));
   if (url.includes('/dashboard/recent-transactions'))
     return Promise.resolve(jsonResponse(recent));
+  if (url.includes('/dashboard/cash-flow'))
+    return Promise.resolve(jsonResponse(cashFlow));
   return Promise.resolve(jsonResponse({ message: 'Not found' }, 404));
 }
 
@@ -171,6 +190,23 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Rp2.500.000')).toBeVisible();
     expect(screen.getAllByText('Rp1.000.000')).toHaveLength(2);
     expect(screen.getByTestId('expense-doughnut')).toBeInTheDocument();
+    expect(screen.getByTestId('cash-flow-line')).toHaveTextContent(
+      /1 Agu 2026/i,
+    );
+    expect(screen.getByText('Rincian arus kas periode ini')).toBeVisible();
+    expect(
+      screen.getByText('Rp900.719.925.474.099.312.345.678,12'),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      const request = vi
+        .mocked(fetch)
+        .mock.calls.map(([input]) => new URL(getRequestUrl(input)))
+        .find((url) => url.pathname.endsWith('/dashboard/cash-flow'));
+      expect(request?.searchParams.get('from')).toBe('2026-08-01');
+      expect(request?.searchParams.get('to')).toBe('2026-08-31');
+      expect(request?.searchParams.get('granularity')).toBe('day');
+      expect(request?.searchParams.has('userId')).toBe(false);
+    });
     expect(screen.getAllByText('Makanan')).toHaveLength(2);
     expect(screen.getByText('60.00%')).toBeVisible();
     expect(screen.getByText('Gaji')).toBeVisible();
@@ -207,8 +243,8 @@ describe('DashboardPage', () => {
     renderDashboard();
 
     expect(
-      await screen.findByText('Rp900.719.925.474.099.312.345.678,12'),
-    ).toBeVisible();
+      await screen.findAllByText('Rp900.719.925.474.099.312.345.678,12'),
+    ).toHaveLength(2);
   });
 
   it('opens Quick Add from the dashboard and focuses the amount field', async () => {
@@ -324,6 +360,56 @@ describe('DashboardPage', () => {
         getRequestUrl(input).includes('/dashboard/recent-transactions'),
       ),
     ).toBe(false);
+    expect(
+      fetchMock.mock.calls.some(([input]) => {
+        const url = new URL(getRequestUrl(input));
+        return (
+          url.pathname.endsWith('/dashboard/cash-flow') &&
+          url.searchParams.get('from') === '2025-07-01' &&
+          url.searchParams.get('to') === '2025-07-31' &&
+          url.searchParams.get('granularity') === 'day'
+        );
+      }),
+    ).toBe(true);
+  });
+
+  it('keeps the dashboard available when cash-flow has a recoverable error', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        if (getRequestUrl(input).includes('/dashboard/cash-flow'))
+          return Promise.resolve(
+            jsonResponse({ message: 'Invalid range' }, 400),
+          );
+        return successfulFetch(input);
+      }),
+    );
+    renderDashboard();
+    expect(
+      await screen.findByText(/periode grafik tidak valid/i),
+    ).toBeVisible();
+    expect(screen.getAllByText('Rp1.500.000')).toHaveLength(2);
+    await userEvent.click(screen.getByRole('button', { name: /coba lagi/i }));
+  });
+
+  it('shows an honest empty state for zero-filled cash-flow buckets', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        if (getRequestUrl(input).includes('/dashboard/cash-flow'))
+          return Promise.resolve(
+            jsonResponse({
+              ...cashFlow,
+              data: [{ label: '2026-08-01', income: '0.00', expense: '0.00' }],
+            }),
+          );
+        return successfulFetch(input);
+      }),
+    );
+    renderDashboard();
+    expect(
+      await screen.findByText(/belum ada transaksi pada periode ini/i),
+    ).toBeVisible();
   });
 
   it('shows loading skeletons while API requests are pending', () => {
