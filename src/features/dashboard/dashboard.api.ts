@@ -3,6 +3,7 @@ import type {
   CategoryBreakdown,
   DashboardPeriod,
   DashboardSummary,
+  CashFlowResponse,
   RecentTransaction,
 } from './dashboard.types';
 
@@ -33,4 +34,17 @@ export function getExpenseBreakdown(
 
 export function getRecentTransactions(): Promise<RecentTransaction[]> {
   return authenticatedApiRequest('dashboard/recent-transactions?limit=5');
+}
+
+export function getCashFlow({
+  from,
+  to,
+  granularity,
+}: {
+  from: string;
+  to: string;
+  granularity: 'day' | 'week' | 'month';
+}): Promise<CashFlowResponse> {
+  const query = new URLSearchParams({ from, to, granularity });
+  return authenticatedApiRequest(`dashboard/cash-flow?${query}`);
 }

@@ -47,6 +47,7 @@ Navigasi utama
 - Total saldo seluruh account aktif.
 - Pemasukan, pengeluaran, net saving, dan perbandingan bulan sebelumnya.
 - Breakdown pengeluaran per kategori dengan doughnut chart.
+- Grafik arus kas harian pemasukan dan pengeluaran berdasarkan endpoint backend, dengan tooltip dan rincian tabel decimal-string.
 - Lima transaksi terbaru.
 - Account Overview untuk maksimal tiga account aktif, termasuk saldo dan link History terfilter.
 - Pemilih periode bulanan.
@@ -116,7 +117,6 @@ Navigasi utama
 
 ## PRD frontend yang belum dapat dibuat tanpa backend baru
 
-- Grafik bar/line income vs expense lintas periode: kontrak saat ini hanya menyediakan satu summary bulanan dan breakdown expense, belum ada endpoint time-series.
 - Semua item backend/infrastruktur: rate limit, rotasi refresh token, ownership authorization, database constraint, Swagger, Docker, CI/CD, health endpoint, dan deployment.
 
 ## Verification terakhir

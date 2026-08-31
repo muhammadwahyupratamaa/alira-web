@@ -5,18 +5,22 @@
 :root {
   color-scheme: light;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  color: #171717;
-  background: #f6f7f9;
+  color: #14242b;
+  background: #f4f7f8;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --color-canvas: #f6f7f9;
-  --color-surface: rgb(255 255 255 / 88%);
-  --color-text: #171717;
-  --color-muted: #686b73;
-  --color-accent: #5b4ff7;
-  --color-border: rgb(23 23 23 / 10%);
-  --shadow-surface: 0 24px 80px rgb(28 30 42 / 10%);
-  --radius-surface: 1.5rem;
+  --color-canvas: #f4f7f8;
+  --color-surface: rgb(255 255 255 / 90%);
+  --color-surface-elevated: #ffffff;
+  --color-text: #14242b;
+  --color-muted: #65737a;
+  --color-accent: #0d8074;
+  --color-income: #287e64;
+  --color-expense: #b85b55;
+  --color-border: rgb(20 36 43 / 11%);
+  --shadow-surface: 0 18px 46px rgb(28 56 63 / 10%);
+  --radius-surface: 1.25rem;
+  --space-page: clamp(1rem, 4vw, 3.25rem);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -394,7 +398,7 @@ h1 {
 
 .product-shell {
   min-height: 100vh;
-  background: #f5f5f7;
+  background: var(--color-canvas);
 }
 
 .sidebar {
@@ -416,7 +420,7 @@ h1 {
   justify-content: space-between;
   padding: 0 1.25rem;
   border-bottom: 1px solid var(--color-border);
-  background: rgb(245 245 247 / 88%);
+  background: rgb(244 247 248 / 92%);
   backdrop-filter: blur(18px);
 }
 
@@ -454,7 +458,7 @@ h1 {
   border: 1px solid var(--color-border);
   border-radius: 1.15rem;
   background: rgb(255 255 255 / 94%);
-  box-shadow: 0 14px 45px rgb(21 19 29 / 16%);
+  box-shadow: 0 14px 40px rgb(20 36 43 / 16%);
   backdrop-filter: blur(20px);
 }
 
@@ -474,7 +478,7 @@ h1 {
 
 .mobile-nav-item.active {
   color: var(--color-accent);
-  background: rgb(91 79 247 / 9%);
+  background: rgb(13 128 116 / 10%);
 }
 
 .nav-item-disabled {
@@ -578,11 +582,11 @@ h1 {
 }
 
 .summary-income .summary-mark {
-  background: #2d9b74;
+  background: var(--color-income);
 }
 
 .summary-expense .summary-mark {
-  background: #d7665a;
+  background: var(--color-expense);
 }
 
 .summary-value {
@@ -1131,6 +1135,130 @@ h1 {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .mobile-header,
+  .mobile-nav,
+  .surface {
+    background: var(--color-surface-elevated);
+  }
+}
+
+/* Ledger Arus: material belongs to navigation; data surfaces stay crisp. */
+.sidebar {
+  background: #102d31;
+}
+.sidebar .wordmark span {
+  color: #72d3c4;
+}
+.sidebar .nav-item.active {
+  background: rgb(114 211 196 / 16%);
+}
+.dashboard-content {
+  padding-inline: var(--space-page);
+}
+.dashboard-heading {
+  padding-bottom: 1.35rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.dashboard-heading h1 {
+  max-width: none;
+  font-weight: 760;
+}
+.period-control input,
+.content-card,
+.summary-card,
+.account-card,
+.account-form-card,
+.confirm-dialog {
+  background: var(--color-surface-elevated);
+}
+.content-card,
+.summary-card,
+.account-card {
+  box-shadow: 0 4px 18px rgb(20 36 43 / 5%);
+}
+.ledger-primary-value,
+.ledger-value,
+.summary-value,
+.account-card dd {
+  font-variant-numeric: tabular-nums;
+}
+.cash-flow-card {
+  display: grid;
+  grid-template-rows: auto auto minmax(15rem, 20rem) auto;
+  gap: 0.9rem;
+}
+.cash-flow-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.25rem;
+  color: var(--color-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.cash-flow-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.cash-flow-legend i {
+  display: inline-block;
+  width: 1.8rem;
+  border-top: 2px solid;
+}
+.cash-flow-legend .income-line {
+  border-color: var(--color-income);
+}
+.cash-flow-legend .expense-line {
+  border-color: var(--color-expense);
+  border-top-style: dashed;
+}
+.cash-flow-visual,
+.cash-flow-skeleton {
+  min-height: 15rem;
+}
+.cash-flow-visual {
+  min-width: 0;
+  border-top: 1px solid rgb(20 36 43 / 7%);
+  border-bottom: 1px solid rgb(20 36 43 / 7%);
+}
+.cash-flow-table-wrap {
+  color: var(--color-muted);
+  font-size: 0.75rem;
+}
+.cash-flow-table-wrap summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--color-text);
+  font-weight: 700;
+}
+.cash-flow-table-wrap table {
+  width: 100%;
+  margin-top: 0.8rem;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.cash-flow-table-wrap th,
+.cash-flow-table-wrap td {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+  text-align: right;
+}
+.cash-flow-table-wrap th:first-child {
+  text-align: left;
+}
+.cash-flow-message {
+  min-height: 15rem;
+}
+.cash-flow-message .secondary-button {
+  margin-top: 0.4rem;
+}
+@media (min-width: 64rem) {
+  .cash-flow-card {
+    grid-column: 1 / -1;
   }
 }
 
