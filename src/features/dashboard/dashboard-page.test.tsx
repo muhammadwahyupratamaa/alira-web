@@ -172,11 +172,13 @@ function renderDashboard() {
 
 describe('DashboardPage', () => {
   beforeEach(() => {
+    vi.setSystemTime(new Date('2026-08-25T12:00:00.000Z'));
     setApiAccessToken('access-token');
     vi.stubGlobal('fetch', vi.fn(successfulFetch));
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     setApiAccessToken(null);
     sessionStorage.clear();
     vi.unstubAllGlobals();

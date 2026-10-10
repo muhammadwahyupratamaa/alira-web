@@ -11,10 +11,12 @@ ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 RUN test -n "$VITE_API_BASE_URL" || (echo "VITE_API_BASE_URL build argument is required" >&2; exit 1)
 RUN npm run build
+RUN api_origin="$(node -p 'new URL(process.env.VITE_API_BASE_URL).origin')" \
+  && sed "s|__API_ORIGIN__|$api_origin|g" nginx.conf > /tmp/default.conf
 
 FROM nginxinc/nginx-unprivileged:1.31-alpine AS runtime
 
-COPY --chown=101:101 nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build --chown=101:101 /tmp/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=build --chown=101:101 /app/dist /usr/share/nginx/html
 
 EXPOSE 8080

@@ -67,7 +67,7 @@ docker compose down
 
 The final image contains only the static bundle, Nginx, and its configuration. Nginx runs unprivileged on container port `8080`, provides `/healthz`, caches hashed assets immutably, disables long-lived caching for the application shell, and falls back to `index.html` for client-side routes. Unknown files below `/assets/` return a real `404`.
 
-The API is not reverse-proxied. For credentialed refresh cookies, configure the backend CORS allowlist with the exact frontend origin and retain its secure `httpOnly` cookie policy. TLS and HSTS belong at the deployment reverse proxy or platform edge.
+The API is not reverse-proxied. The container builds a Content Security Policy that permits requests only to the configured API origin. For credentialed refresh cookies, configure the backend CORS allowlist with the exact frontend origin, validate the `Origin` header on cookie-authenticated endpoints, and use `Secure`, `HttpOnly`, and an appropriate `SameSite` policy. TLS and HSTS belong at the deployment reverse proxy or platform edge; do not expose port `8080` directly to the internet.
 
 ## Continuous integration
 
